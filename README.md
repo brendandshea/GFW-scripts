@@ -1,6 +1,6 @@
 # GFW-Scripts
 
-Shark Sanctuary Workflow
+Shark Sanctuary Workflow - Longline
 
 1.	Pull 2019 AIS data from server: 
 
@@ -13,7 +13,7 @@ Shark Sanctuary Workflow
 3.	Filter AIS data to only reflect effort within a given sanctuary, and predict hooks in the sanctuary (at 0.25x0.25) using the GAMM. 
     	This is done at the sanctuary specific level. I included scripts for Cook Islands as an example.
     
-	    	HookProj_CookIslands.R
+	    	HookProj_SANCTUARY.R
       
   	Notes: To filter AIS data, I use EEZ shapefiles that were downloaded and saved on my computer. I shared that folder here: 
   	https://drive.google.com/drive/folders/1Vw2t1sM775izoAAi-ZP0LtjQXwTRcoWD?usp=sharing
@@ -24,6 +24,6 @@ Shark Sanctuary Workflow
 		WCPFC_bycatch.csv
 
 
-5.	Sanctuary-specific prediction loops for catch and mortality (again, Cook Islands as the example). I currently have only updated this for three species (blue, silky, and bigeye thresher) so you could see the workflow, I will keep adding them.
+5.	Sanctuary-specific prediction loops for catch and mortality.
 
-      		CatchMort_Cook.R
+      		CatchMort_SANCTUARY_V3.R
