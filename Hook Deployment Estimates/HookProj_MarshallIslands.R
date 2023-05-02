@@ -102,6 +102,7 @@ marshallislands_2019 <- subset(marshallislands_2019, fishing_hours != 0)
 marshallislands_2019$log_fishing_hours=ifelse(marshallislands_2019$fishing_hours < 10, 0, log10(marshallislands_2019$fishing_hours))
 range(marshallislands_2019$fishing_hours)
 
+world_shp <- sf::st_as_sf(maps::map("world", plot = FALSE, fill = TRUE))
 
 marshallislands2019plot <- marshallislands_2019 %>%
   ggplot() +

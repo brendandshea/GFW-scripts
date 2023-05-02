@@ -60,28 +60,6 @@ newcaledonia2019$log_hours <- log(newcaledonia2019$hours)
 gamm1 <- readRDS("hooks_gamm.rds")
 newcaledonia_preds <- predict(gamm1, newdata=newcaledonia2019, se.fit=T)
 
-#determine "average" fleet to asssign to missing fleets
-#newdata = data.frame(hours = 100, fleet = unique(newcaledonia2019$fleet), lat = 6, lon = 133)
-#fit <- predict(gamm1, newdata = newdata, se.fit = TRUE)
-#newdata$pred = fit$fit
-#newdata$se.fit = fit$se.fit 
-#newdata$pred.hooks = exp(newdata$pred)
-#newdata = with(newdata,data.frame(newdata, lwr=pred-1.96*se.fit,upr=pred+1.96*se.fit))
-#newdata$phl = exp(newdata$lwr)
-#newdata$phu = exp(newdata$upr)
-#library(countrycode)
-#newdata$fleet = countrycode(newdata$fleet, origin="iso2c", destination = "iso3c", nomatch = NULL)
-#newdata = newdata[order(newdata$pred.hooks),]
-#pos = 1:nrow(newdata)
-#with(newdata,plot(pred.hooks/1000,pos, pch=16, xlim = c(min(phl/1000), max(phu/1000)), axes = F, ylab = "", xlab = "Predicted #hooks per 100 AIS hours"))
-#with(newdata,segments(phl/1000,pos,phu/1000,pos))
-#axis(1)
-#axis(2,at = pos, labels = as.character(newdata$fleet), las = 1)
-
-#CHN is average
-#newcaledonia2019$fleet <- ifelse(newcaledonia2019$fleet == "Unknown" | newcaledonia2019$fleet == "ALB", "CHN", newcaledonia2019$fleet)
-
-#newcaledonia_preds <- predict(gamm1, newdata=newcaledonia2019, se.fit=T)
 newcaledonia2019$log_hooks <- newcaledonia_preds$fit
 newcaledonia2019$log_hooks.se <- newcaledonia_preds$se.fit
 
@@ -101,6 +79,7 @@ newcaledonia_2019 <- subset(newcaledonia_2019, fishing_hours != 0)
 newcaledonia_2019$log_fishing_hours=ifelse(newcaledonia_2019$fishing_hours < 10, 0, log10(newcaledonia_2019$fishing_hours))
 range(newcaledonia_2019$fishing_hours)
 
+world_shp <- sf::st_as_sf(maps::map("world", plot = FALSE, fill = TRUE))
 
 newcaledonia2019plot <- newcaledonia_2019 %>%
   ggplot() +

@@ -88,169 +88,55 @@ threshers.m <- aggregate(data=WCPFC_thresher_data, Mortalities ~ Lat + Long2 + Y
 threshers.sets<-aggregate(data=WCPFC_thresher_data, SetsObserved ~ Lat + Long2 + Year, FUN='sum')
 threshers<-merge(merge(threshers,threshers.m, by=c("Lat","Long2","Year"), all=T),threshers.sets, by=c("Lat","Long2","Year"), all=T)
 
+sum(threshers$Interactions) #114 interactions
+sum(threshers$SetsObserved) #102869 sets; 0.0011 interactions/set
+sum(threshers$Mortalities) #1 mortality
 
-ths_hooks <- aggregate(data=WCPFC_thresher_data, hooks ~ Lat + Long2 + Year, FUN='mean')
-threshers <- merge(threshers, ths_hooks, by=c("Lat", "Long2", "Year"), all=T)
-threshers$log_hooks <- log(threshers$hooks)
+#not enough interactions to model
 
-mod.thresher.wcpfc <- gam(data=threshers, 
-                                Captures ~ s(Long2) + s(Lat, k=13) + ti(Long2,Lat, k=9) + Year + 
-                                  offset(log_hooks),
-                                family=nb, method="ML")
-
-plot(predict(mod.thresher.wcpfc)~mod.thresher.wcpfc$fitted.values)
-gratia::draw(mod.thresher.wcpfc)
-mod.thresher.wcpfc$sp
-
-appraise(mod.thresher.wcpfc, method = "simulate")
-gam.check(mod.thresher.wcpfc)
-summary(mod.thresher.wcpfc)
-anova(mod.thresher.wcpfc)
-
-plot(x = predict(mod.thresher.wcpfc, type="response"),
-     y = mod.thresher.wcpfc$residuals, 
-     xlab = "Predicted Value")
-
-acf(residuals(mod.thresher.wcpfc))
-
-plot(mod.thresher.wcpfc, all.terms=F, residuals=T)
-
-pred.df.thresher <- preds.df
-preds_thresher = predict(mod.thresher.wcpfc, newdata=preds.df, type="response", se.fit=T)
-preds_thresher_log = predict(mod.thresher.wcpfc, newdata=preds.df, se.fit=T)
-pred.df.thresher$cpue <- preds_thresher$fit
-pred.df.thresher$cpuefit <- preds_thresher$se.fit
-pred.df.thresher$log_cpue <- preds_thresher_log$fit
-pred.df.thresher$log_cpuefit <- preds_thresher_log$se.fit
-
-tsh_cpue <- ggplot(pred.df.thresher, aes(x=Long2,y=Lat)) +
-  geom_raster(aes(fill=log_cpue)) +
-  geom_map(data = world, map = world, aes(long, lat, map_id = region)) +
-  scale_y_continuous(name="Latitude", breaks=c(seq(-50, 50, 25))) +
-  scale_x_continuous(name="Longitude", breaks=c(seq(130, 230, 25)), labels = c(130,155,180,-155,-130)) +
-  coord_cartesian(xlim=c(122,233), ylim=c(-54,49), expand=F) +
-  scale_fill_viridis(name="Log CPUE", alpha=0.85, option="H",limits=c(-10.5,4.5),breaks=c(seq(-10,4,2))) +
-  theme(panel.background = element_rect(fill="white", colour = "black"),
-        panel.grid.major = element_line(colour="grey93"),
-        panel.border = element_rect(colour='black', fill=NA, size=1)) +
-  ggtitle(alopias_title)
-
-tsh_cpue
-ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/tsh_cpue.png", tsh_cpue,
-       width = 8, height = 6, dpi=300, bg="white")
-
-write.csv(pred.df.thresher, "thresherCPUE.csv", row.names = F)
-pred.df.thresher <- read.csv('thresherCPUE.csv')
 #### Blue Sharks #### 
 mod.blueshark.wcpfc <- gam(data=WCPFC_blueshark_data, 
-                           Captures ~ s(Lat, k=16) + s(Long2) + ti(Long2,Lat, k=10) + Year + 
-                             offset(log_hooks),
-                           family=nb, method='ML')
+                           Interactions ~ s(Lat) + s(Long2) + ti(Long2,Lat) + Year + 
+                             offset(log(SetsObserved)),
+                           family=nb, method='REML')
 
-plot(mod.blueshark.wcpfc)
-gratia::draw(mod.blueshark.wcpfc)
+sum(WCPFC_blueshark_data$Interactions) #368
+sum(WCPFC_blueshark_data$SetsObserved) #52512
+sum(WCPFC_blueshark_data$Interactions)/sum(WCPFC_blueshark_data$SetsObserved) #0.007/set
+sum(WCPFC_blueshark_data$Mortalities) #24; #0.0005/set
 
-appraise(mod.blueshark.wcpfc, method="simulate")
-gam.check(mod.blueshark.wcpfc)
-summary(mod.blueshark.wcpfc)
-anova(mod.blueshark.wcpfc)
-
-plot(x = predict(mod.blueshark.wcpfc, type="response"),
-     y = mod.blueshark.wcpfc$residuals, 
-     xlab = "Predicted Value")
-abline(0,0,col='red')
-
-acf(residuals(mod.blueshark.wcpfc))
-
-plot(mod.blueshark.wcpfc, all.terms=F, residuals=T)
-
-pred.df.blueshark <- preds.df
-preds_blueshark = predict(mod.blueshark.wcpfc, newdata=preds.df, type="response", se.fit=T)
-preds_blueshark_log = predict(mod.blueshark.wcpfc, newdata=preds.df, se.fit=T)
-pred.df.blueshark$cpue <- preds_blueshark$fit
-pred.df.blueshark$cpuefit <- preds_blueshark$se.fit
-pred.df.blueshark$log_cpue <- preds_blueshark_log$fit
-pred.df.blueshark$log_cpuefit <- preds_blueshark_log$se.fit
-
-BSHcpue <- ggplot(pred.df.blueshark, aes(x=Long2,y=Lat)) +
-  geom_raster(aes(fill=log_cpue)) +
-  geom_map(data = world, map = world, aes(long, lat, map_id = region)) +
-  scale_y_continuous(name="Latitude", breaks=c(seq(-50, 50, 25))) +
-  scale_x_continuous(name="Longitude", breaks=c(seq(130, 230, 25)), labels = c(130,155,180,-155,-130)) +
-  coord_cartesian(xlim=c(122,233), ylim=c(-54,49), expand=F) +
-  scale_fill_viridis(name="Log CPUE", alpha=0.85, option="H",limits=c(-10.5,4.5),breaks=c(seq(-10,4,2))) +
-  theme(panel.background = element_rect(fill="white", colour = "black"),
-        panel.grid.major = element_line(colour="grey93"),
-        panel.border = element_rect(colour='black', fill=NA, size=1)) +
-  ggtitle("Blue Shark")
-
-BSHcpue
-ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/BSHcpue.png", BSHcpue,
-       width = 8, height = 6, dpi=300, bg="white")
-
-write.csv(pred.df.blueshark, "bluesharkCPUE.csv", row.names = F)
-pred.df.blueshark <- read.csv("bluesharkCPUE.csv")
 #### Hammerheads ####
-hammers <- aggregate(data=WCPFC_hammerhead_data, Captures ~ Lat + Long2 + Year, FUN='sum')
-sphyr_hooks <- aggregate(data=WCPFC_hammerhead_data, hooks ~ Lat + Long2 + Year, FUN='mean')
-hammers <- merge(hammers, sphyr_hooks, by=c("Lat", "Long2", "Year"), all=T)
-hammers$log_hooks <- log(hammers$hooks)
+hammers <- aggregate(data=WCPFC_hammerhead_data, Interactions ~ Lat + Long2 + Year, FUN='sum')
+hammers.m <- aggregate(data=WCPFC_hammerhead_data, Mortalities ~ Lat + Long2 + Year, FUN='sum')
+hammers.sets<-aggregate(data=WCPFC_hammerhead_data, SetsObserved ~ Lat + Long2 + Year, FUN='sum')
+hammers<-merge(merge(hammers,hammers.m, by=c("Lat","Long2","Year"), all=T),hammers.sets, by=c("Lat","Long2","Year"), all=T)
 
+sum(hammers$Interactions) #280 interactions
+sum(hammers$SetsObserved) #181641 sets
+sum(hammers$Interactions)/ sum(hammers$SetsObserved) #0.0015 interactions/set
+sum(hammers$Mortalities) #1 mortality
 
-mod.hammerhead.wcpfc <- gam(data=hammers, 
-                            Captures ~ s(Lat) +s(Long2) +ti(Long2,Lat, k=7) + Year + 
-                              offset(log_hooks),
-                            family=nb, method="ML")
-
-draw(mod.hammerhead.wcpfc)
-plot(mod.hammerhead.wcpfc)
-appraise(mod.hammerhead.wcpfc, method="simulate")
-gam.check(mod.hammerhead.wcpfc)
-
-plot(x = predict(mod.hammerhead.wcpfc, type="response"),
-     y = mod.hammerhead.wcpfc$residuals, 
-     xlab = "Predicted Value")
-abline(0,0,col='red')
-
-summary(mod.hammerhead.wcpfc)
-anova(mod.hammerhead.wcpfc)
-
-acf(residuals(mod.hammerhead.wcpfc))
-
-plot(mod.hammerhead.wcpfc, all.terms=F, residuals=T)
-
-pred.df.hammerhead <- preds.df
-preds_hammerhead = predict(mod.hammerhead.wcpfc, newdata=preds.df, type="response", se.fit=T)
-preds_hammerhead_log = predict(mod.hammerhead.wcpfc, newdata=preds.df, se.fit=T)
-pred.df.hammerhead$cpue <- preds_hammerhead$fit
-pred.df.hammerhead$cpuefit <- preds_hammerhead$se.fit
-pred.df.hammerhead$log_cpue <- preds_hammerhead_log$fit
-pred.df.hammerhead$log_cpuefit <- preds_hammerhead_log$se.fit
-
-hammercpue <- ggplot(pred.df.hammerhead, aes(x=Long2,y=Lat)) +
-  geom_raster(aes(fill=log_cpue)) +
-  geom_map(data = world, map = world, aes(long, lat, map_id = region)) +
-  scale_y_continuous(name="Latitude", breaks=c(seq(-50, 50, 25))) +
-  scale_x_continuous(name="Longitude", breaks=c(seq(130, 230, 25)), labels = c(130,155,180,-155,-130)) +
-  coord_cartesian(xlim=c(122,233), ylim=c(-54,49), expand=F) +
-  scale_fill_viridis(name="Log CPUE", alpha=0.85, option="H",limits=c(-10.5,4.5),breaks=c(seq(-10,4,2))) +
-  theme(panel.background = element_rect(fill="white", colour = "black"),
-        panel.grid.major = element_line(colour="grey93"),
-        panel.border = element_rect(colour='black', fill=NA, size=1))+
-  ggtitle(sphyrnas_title)
-
-hammercpue
-ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/hammercpue.png", hammercpue,
-       width = 8, height = 6, dpi=300, bg="white")
-
-write.csv(pred.df.hammerhead, "hammerheadCPUE.csv", row.names = F)
-pred.df.hammerhead <- read.csv('hammerheadCPUE.csv')
 #### Silky Shark ####
 mod.silkyshark.wcpfc <- gam(data=WCPFC_silky_data, 
-                            Captures ~ s(Lat, k=13) + s(Long2) +ti(Long2,Lat, k=10) + Year + 
-                              offset(log_hooks),
-                            family=nb, mnethod='ML')
+                            Interactions ~ s(Lat) + s(Long2) + Year + 
+                              offset(log(SetsObserved)),
+                            family=nb, mnethod='REML')
 
+WCPFC_silky_data$logSets <- log(WCPFC_silky_data$SetsObserved)
+WCPFC_silky_data2 <- subset(WCPFC_silky_data, InteractionsRate < 60)
+mod.silkyshark.wcpfc.PS <- glm.nb(data=WCPFC_silky_data, Interactions ~ Lat+Long2 + Year + offset(logSets)) 
+
+library(glmmTMB)
+mod.silkyshark.wcpfc.PS <- glmmTMB(data=WCPFC_silky_data, Interactions ~ Lat+Long2 + Year,
+                                  offset(logSets), family=ziP) 
+
+library(pscl)
+
+mod.silkyshark.wcpfc.PS <- zeroinfl(data=WCPFC_silky_data, Interactions ~ Lat + Long2 + Year + offset(logSets) | 
+                                     1, dist='negbin') 
+
+
+performance::check_model(mod.silkyshark.wcpfc.PS)
 draw(mod.silkyshark.wcpfc)
 plot(mod.silkyshark.wcpfc)
 appraise(mod.silkyshark.wcpfc, method='simulate')

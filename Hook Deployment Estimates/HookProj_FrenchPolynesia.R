@@ -79,6 +79,7 @@ frenchpolynesia_2019 <- subset(frenchpolynesia_2019, fishing_hours != 0)
 frenchpolynesia_2019$log_fishing_hours=ifelse(frenchpolynesia_2019$fishing_hours < 10, 0, log10(frenchpolynesia_2019$fishing_hours))
 range(frenchpolynesia_2019$fishing_hours)
 
+world_shp <- sf::st_as_sf(maps::map("world", plot = FALSE, fill = TRUE))
 
 frenchpolynesia2019plot <- frenchpolynesia_2019 %>%
   ggplot() +

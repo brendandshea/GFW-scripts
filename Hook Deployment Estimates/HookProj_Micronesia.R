@@ -102,6 +102,7 @@ micronesia_2019 <- subset(micronesia_2019, fishing_hours != 0)
 micronesia_2019$log_fishing_hours=ifelse(micronesia_2019$fishing_hours < 10, 0, log10(micronesia_2019$fishing_hours))
 range(micronesia_2019$fishing_hours)
 
+world_shp <- sf::st_as_sf(maps::map("world", plot = FALSE, fill = TRUE))
 
 micronesia2019plot <- micronesia_2019 %>%
   ggplot() +

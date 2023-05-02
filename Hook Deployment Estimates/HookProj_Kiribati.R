@@ -103,6 +103,7 @@ kiribati_2019 <- subset(kiribati_2019, fishing_hours != 0)
 kiribati_2019$log_fishing_hours=ifelse(kiribati_2019$fishing_hours < 10, 0, log10(kiribati_2019$fishing_hours))
 range(kiribati_2019$fishing_hours)
 
+world_shp <- sf::st_as_sf(maps::map("world", plot = FALSE, fill = TRUE))
 
 kiribati2019plot <- kiribati_2019 %>%
   ggplot() +

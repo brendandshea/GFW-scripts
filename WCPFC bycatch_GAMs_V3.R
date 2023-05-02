@@ -11,6 +11,11 @@ rm(list=ls())
 setwd("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/working_dir")
 data <- read.csv("WCPFC_bycatch.csv")
 
+#titles for genera
+alopias_title <- expression(paste(italic("Alopias")," spp."))
+isurus_title <- expression(paste(italic("Isurus")," spp."))
+sphyrnas_title <- expression(paste(italic("Sphyrnas")," spp."))
+
 data <- subset(data, Species.Category == "SHK")
 colnames(data)[1] = "Year"
 colnames(data)[3] = "Lat"
@@ -19,8 +24,8 @@ colnames(data)[6] = "Species"
 colnames(data)[8] = "Captures"
 colnames(data)[9] = "Nominal_CPUE"
 colnames(data)[10] = "Mortalities"
-colnames(data)[11] = "Morality Rate"
-data$hooks=data$Captures/(data$Nominal_CPUE/1000)
+colnames(data)[11] = "Mortality Rate"
+data$hooks=round(data$Captures/(data$Nominal_CPUE/1000))
 data$log_hooks <- log(data$hooks)
 
 data$Long2 <- ifelse(data$Long<0, 180 + (data$Long+180), data$Long)
@@ -77,6 +82,7 @@ predsgrid<-as.data.frame(predsgrid)
 preds.df <- predsgrid[,c(1:2)]
 colnames(preds.df)[1] = "Long2"
 colnames(preds.df)[2] = "Lat"
+
 preds.df$Year = 2019
 preds.df$log_hooks = log(1000)
 
@@ -91,23 +97,24 @@ WCPFC_othersharks_data <- subset(data, Species == "PORBEAGLE SHARK" | Species ==
 
 world <- map_data("world2")
 
+fullgrid<-aggregate(data, hooks~Lat+Long2+Year, FUN=mean)
+fullgrid$log_hooks <- log(fullgrid$hooks)
+
 #### thresher ####
 threshers <- aggregate(data=WCPFC_thresher_data, Captures ~ Lat + Long2 + Year, FUN='sum')
-ths_hooks <- aggregate(data=WCPFC_thresher_data, hooks ~ Lat + Long2 + Year, FUN='mean')
-threshers <- merge(threshers, ths_hooks, by=c("Lat", "Long2", "Year"), all=T)
-threshers$log_hooks <- log(threshers$hooks)
+threshers <- merge(fullgrid,threshers,by=c("Lat","Long2","Year"), all=T)
+threshers$Captures <- ifelse(is.na(threshers$Captures),0, threshers$Captures)
 
 mod.thresher.wcpfc <- gam(data=threshers, 
                                 Captures ~ s(Long2) + s(Lat, k=13) + ti(Long2,Lat, k=9) + Year + 
                                   offset(log_hooks),
-                                family=nb, method="ML")
-
-plot(predict(mod.thresher.wcpfc)~mod.thresher.wcpfc$fitted.values)
-gratia::draw(mod.thresher.wcpfc)
-mod.thresher.wcpfc$sp
+                                family=nb, method="REML")
 
 appraise(mod.thresher.wcpfc, method = "simulate")
+draw(mod.thresher.wcpfc)
 gam.check(mod.thresher.wcpfc)
+mod.thresher.wcpfc$sp
+
 summary(mod.thresher.wcpfc)
 anova(mod.thresher.wcpfc)
 
@@ -116,7 +123,6 @@ plot(x = predict(mod.thresher.wcpfc, type="response"),
      xlab = "Predicted Value")
 
 acf(residuals(mod.thresher.wcpfc))
-
 plot(mod.thresher.wcpfc, all.terms=F, residuals=T)
 
 pred.df.thresher <- preds.df
@@ -136,7 +142,7 @@ tsh_cpue <- ggplot(pred.df.thresher, aes(x=Long2,y=Lat)) +
   scale_fill_viridis(name="Log CPUE", alpha=0.85, option="H",limits=c(-10.5,4.5),breaks=c(seq(-10,4,2))) +
   theme(panel.background = element_rect(fill="white", colour = "black"),
         panel.grid.major = element_line(colour="grey93"),
-        panel.border = element_rect(colour='black', fill=NA, size=1)) +
+        panel.border = element_rect(colour='black', fill=NA, linewidth = 1)) +
   ggtitle(alopias_title)
 
 tsh_cpue
@@ -146,26 +152,29 @@ ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/tsh_cpue.png", ts
 write.csv(pred.df.thresher, "thresherCPUE.csv", row.names = F)
 pred.df.thresher <- read.csv('thresherCPUE.csv')
 #### Blue Sharks #### 
-mod.blueshark.wcpfc <- gam(data=WCPFC_blueshark_data, 
-                           Captures ~ s(Lat, k=16) + s(Long2) + ti(Long2,Lat, k=10) + Year + 
+blueshark <- WCPFC_blueshark_data[,c("Lat","Long2","Year","Captures")]
+blueshark <- merge(fullgrid,blueshark,by=c("Lat","Long2","Year"), all=T)
+blueshark$Captures <- ifelse(is.na(blueshark$Captures),0, blueshark$Captures)
+
+
+mod.blueshark.wcpfc <- gam(data=blueshark, 
+                           Captures ~ s(Lat, k=14) + s(Long2) + ti(Long2,Lat, k=8) + Year + 
                              offset(log_hooks),
-                           family=nb, method='ML')
+                           family=nb, method='REML')
 
-plot(mod.blueshark.wcpfc)
-gratia::draw(mod.blueshark.wcpfc)
-
-appraise(mod.blueshark.wcpfc, method="simulate")
+appraise(mod.blueshark.wcpfc, method = "simulate")
+draw(mod.blueshark.wcpfc)
 gam.check(mod.blueshark.wcpfc)
+mod.blueshark.wcpfc$sp
+
 summary(mod.blueshark.wcpfc)
 anova(mod.blueshark.wcpfc)
 
 plot(x = predict(mod.blueshark.wcpfc, type="response"),
      y = mod.blueshark.wcpfc$residuals, 
      xlab = "Predicted Value")
-abline(0,0,col='red')
 
 acf(residuals(mod.blueshark.wcpfc))
-
 plot(mod.blueshark.wcpfc, all.terms=F, residuals=T)
 
 pred.df.blueshark <- preds.df
@@ -196,42 +205,38 @@ write.csv(pred.df.blueshark, "bluesharkCPUE.csv", row.names = F)
 pred.df.blueshark <- read.csv("bluesharkCPUE.csv")
 #### Hammerheads ####
 hammers <- aggregate(data=WCPFC_hammerhead_data, Captures ~ Lat + Long2 + Year, FUN='sum')
-sphyr_hooks <- aggregate(data=WCPFC_hammerhead_data, hooks ~ Lat + Long2 + Year, FUN='mean')
-hammers <- merge(hammers, sphyr_hooks, by=c("Lat", "Long2", "Year"), all=T)
-hammers$log_hooks <- log(hammers$hooks)
+hammers <- merge(fullgrid,hammers,by=c("Lat","Long2","Year"), all=T)
+hammers$Captures <- ifelse(is.na(hammers$Captures),0, hammers$Captures)
 
+mod.hammer.wcpfc <- gam(data=hammers, 
+                          Captures ~ s(Long2) + s(Lat, k=13) + ti(Long2,Lat, k=10) + Year + 
+                            offset(log_hooks),
+                          family=nb, method="REML")
 
-mod.hammerhead.wcpfc <- gam(data=hammers, 
-                            Captures ~ s(Lat) +s(Long2) +ti(Long2,Lat, k=7) + Year + 
-                              offset(log_hooks),
-                            family=nb, method="ML")
+appraise(mod.hammer.wcpfc, method = "simulate")
+draw(mod.hammer.wcpfc)
+gam.check(mod.hammer.wcpfc)
+mod.hammer.wcpfc$sp
 
-draw(mod.hammerhead.wcpfc)
-plot(mod.hammerhead.wcpfc)
-appraise(mod.hammerhead.wcpfc, method="simulate")
-gam.check(mod.hammerhead.wcpfc)
+summary(mod.hammer.wcpfc)
+anova(mod.hammer.wcpfc)
 
-plot(x = predict(mod.hammerhead.wcpfc, type="response"),
-     y = mod.hammerhead.wcpfc$residuals, 
+plot(x = predict(mod.hammer.wcpfc, type="response"),
+     y = mod.hammer.wcpfc$residuals, 
      xlab = "Predicted Value")
-abline(0,0,col='red')
 
-summary(mod.hammerhead.wcpfc)
-anova(mod.hammerhead.wcpfc)
+acf(residuals(mod.hammer.wcpfc))
+plot(mod.hammer.wcpfc, all.terms=F, residuals=T)
 
-acf(residuals(mod.hammerhead.wcpfc))
+pred.df.hammer <- preds.df
+preds_hammer = predict(mod.hammer.wcpfc, newdata=preds.df, type="response", se.fit=T)
+preds_hammer_log = predict(mod.hammer.wcpfc, newdata=preds.df, se.fit=T)
+pred.df.hammer$cpue <- preds_hammer$fit
+pred.df.hammer$cpuefit <- preds_hammer$se.fit
+pred.df.hammer$log_cpue <- preds_hammer_log$fit
+pred.df.hammer$log_cpuefit <- preds_hammer_log$se.fit
 
-plot(mod.hammerhead.wcpfc, all.terms=F, residuals=T)
-
-pred.df.hammerhead <- preds.df
-preds_hammerhead = predict(mod.hammerhead.wcpfc, newdata=preds.df, type="response", se.fit=T)
-preds_hammerhead_log = predict(mod.hammerhead.wcpfc, newdata=preds.df, se.fit=T)
-pred.df.hammerhead$cpue <- preds_hammerhead$fit
-pred.df.hammerhead$cpuefit <- preds_hammerhead$se.fit
-pred.df.hammerhead$log_cpue <- preds_hammerhead_log$fit
-pred.df.hammerhead$log_cpuefit <- preds_hammerhead_log$se.fit
-
-hammercpue <- ggplot(pred.df.hammerhead, aes(x=Long2,y=Lat)) +
+hammer_cpue <- ggplot(pred.df.hammer, aes(x=Long2,y=Lat)) +
   geom_raster(aes(fill=log_cpue)) +
   geom_map(data = world, map = world, aes(long, lat, map_id = region)) +
   scale_y_continuous(name="Latitude", breaks=c(seq(-50, 50, 25))) +
@@ -240,36 +245,39 @@ hammercpue <- ggplot(pred.df.hammerhead, aes(x=Long2,y=Lat)) +
   scale_fill_viridis(name="Log CPUE", alpha=0.85, option="H",limits=c(-10.5,4.5),breaks=c(seq(-10,4,2))) +
   theme(panel.background = element_rect(fill="white", colour = "black"),
         panel.grid.major = element_line(colour="grey93"),
-        panel.border = element_rect(colour='black', fill=NA, size=1))+
+        panel.border = element_rect(colour='black', fill=NA, linewidth = 1)) +
   ggtitle(sphyrnas_title)
 
-hammercpue
-ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/hammercpue.png", hammercpue,
+hammer_cpue
+ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/hammer_cpue.png", hammer_cpue,
        width = 8, height = 6, dpi=300, bg="white")
 
-write.csv(pred.df.hammerhead, "hammerheadCPUE.csv", row.names = F)
-pred.df.hammerhead <- read.csv('hammerheadCPUE.csv')
+write.csv(pred.df.hammer, "hammerCPUE.csv", row.names = F)
+pred.df.hammer <- read.csv('hammerCPUE.csv')
+
 #### Silky Shark ####
-mod.silkyshark.wcpfc <- gam(data=WCPFC_silky_data, 
-                            Captures ~ s(Lat, k=13) + s(Long2) +ti(Long2,Lat, k=10) + Year + 
-                              offset(log_hooks),
-                            family=nb, mnethod='ML')
+silkyshark <- WCPFC_silky_data[,c("Lat","Long2","Year","Captures")]
+silkyshark <- merge(fullgrid,silkyshark,by=c("Lat","Long2","Year"), all=T)
+silkyshark$Captures <- ifelse(is.na(silkyshark$Captures),0, silkyshark$Captures)
 
+mod.silkyshark.wcpfc <- gam(data=silkyshark, 
+                           Captures ~ s(Lat, k=17) + s(Long2, k=11) + ti(Long2,Lat, k=12) + Year + 
+                             offset(log_hooks),
+                           family=nb, method='REML')
+
+appraise(mod.silkyshark.wcpfc, method = "simulate")
 draw(mod.silkyshark.wcpfc)
-plot(mod.silkyshark.wcpfc)
-appraise(mod.silkyshark.wcpfc, method='simulate')
 gam.check(mod.silkyshark.wcpfc)
-
-plot(x = predict(mod.silkyshark.wcpfc, type="response"),
-     y = mod.silkyshark.wcpfc$residuals, 
-     xlab = "Predicted Value")
-abline(0,0,col='red')
+mod.silkyshark.wcpfc$sp
 
 summary(mod.silkyshark.wcpfc)
 anova(mod.silkyshark.wcpfc)
 
-acf(residuals(mod.silkyshark.wcpfc))
+plot(x = predict(mod.silkyshark.wcpfc, type="response"),
+     y = mod.silkyshark.wcpfc$residuals, 
+     xlab = "Predicted Value")
 
+acf(residuals(mod.silkyshark.wcpfc))
 plot(mod.silkyshark.wcpfc, all.terms=F, residuals=T)
 
 pred.df.silkyshark <- preds.df
@@ -280,7 +288,7 @@ pred.df.silkyshark$cpuefit <- preds_silkyshark$se.fit
 pred.df.silkyshark$log_cpue <- preds_silkyshark_log$fit
 pred.df.silkyshark$log_cpuefit <- preds_silkyshark_log$se.fit
 
-FALcpue <- ggplot(pred.df.silkyshark, aes(x=Long2,y=Lat)) +
+silkycpue <- ggplot(pred.df.silkyshark, aes(x=Long2,y=Lat)) +
   geom_raster(aes(fill=log_cpue)) +
   geom_map(data = world, map = world, aes(long, lat, map_id = region)) +
   scale_y_continuous(name="Latitude", breaks=c(seq(-50, 50, 25))) +
@@ -292,39 +300,35 @@ FALcpue <- ggplot(pred.df.silkyshark, aes(x=Long2,y=Lat)) +
         panel.border = element_rect(colour='black', fill=NA, size=1)) +
   ggtitle("Silky Shark")
 
-FALcpue
-ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/FALcpue.png", FALcpue,
+silkycpue
+ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/silkycpue.png", silkycpue,
        width = 8, height = 6, dpi=300, bg="white")
 
 write.csv(pred.df.silkyshark, "silkysharkCPUE.csv", row.names = F)
-pred.df.silkyshark <- read.csv('silkysharkCPUE.csv')
+pred.df.silkyshark <- read.csv("silkysharkCPUE.csv")
 #### Mako #### 
 makos <- aggregate(data=WCPFC_mako_data, Captures ~ Lat + Long2 + Year, FUN='sum')
-mak_hooks <- aggregate(data=WCPFC_mako_data, hooks ~ Lat + Long2 + Year, FUN='mean')
-makos <- merge(makos, mak_hooks, by=c("Lat", "Long2", "Year"), all=T)
-makos$log_hooks <- log(makos$hooks)
+makos <- merge(fullgrid,makos,by=c("Lat","Long2","Year"), all=T)
+makos$Captures <- ifelse(is.na(makos$Captures),0, makos$Captures)
 
 mod.mako.wcpfc <- gam(data=makos, 
-                              Captures ~ s(Lat, k=14) + s(Long2, k=10) + ti(Long2,Lat, k=9) + Year + 
-                                offset(log_hooks),
-                              family=nb)
+                        Captures ~ s(Long2) + s(Lat, k=13) + ti(Long2,Lat, k=10) + Year + 
+                          offset(log_hooks),
+                        family=nb, method="REML")
 
-gam.check(mod.mako.wcpfc)
+appraise(mod.mako.wcpfc, method = "simulate")
 draw(mod.mako.wcpfc)
-appraise(mod.mako.wcpfc, method = 'simulate')
-summary(mod.mako.wcpfc)
+gam.check(mod.mako.wcpfc)
+mod.mako.wcpfc$sp
 
-plot(mod.mako.wcpfc)
+summary(mod.mako.wcpfc)
+anova(mod.mako.wcpfc)
 
 plot(x = predict(mod.mako.wcpfc, type="response"),
      y = mod.mako.wcpfc$residuals, 
      xlab = "Predicted Value")
 
-
-anova(mod.mako.wcpfc)
-
 acf(residuals(mod.mako.wcpfc))
-
 plot(mod.mako.wcpfc, all.terms=F, residuals=T)
 
 pred.df.mako <- preds.df
@@ -335,7 +339,7 @@ pred.df.mako$cpuefit <- preds_mako$se.fit
 pred.df.mako$log_cpue <- preds_mako_log$fit
 pred.df.mako$log_cpuefit <- preds_mako_log$se.fit
 
-mak_cpue <- ggplot(pred.df.mako, aes(x=Long2,y=Lat)) +
+mako_cpue <- ggplot(pred.df.mako, aes(x=Long2,y=Lat)) +
   geom_raster(aes(fill=log_cpue)) +
   geom_map(data = world, map = world, aes(long, lat, map_id = region)) +
   scale_y_continuous(name="Latitude", breaks=c(seq(-50, 50, 25))) +
@@ -344,37 +348,39 @@ mak_cpue <- ggplot(pred.df.mako, aes(x=Long2,y=Lat)) +
   scale_fill_viridis(name="Log CPUE", alpha=0.85, option="H",limits=c(-10.5,4.5),breaks=c(seq(-10,4,2))) +
   theme(panel.background = element_rect(fill="white", colour = "black"),
         panel.grid.major = element_line(colour="grey93"),
-        panel.border = element_rect(colour='black', fill=NA, size=1)) +
+        panel.border = element_rect(colour='black', fill=NA, linewidth = 1)) +
   ggtitle(isurus_title)
 
-mak_cpue
-ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/mak_cpue.png", mak_cpue,
+mako_cpue
+ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/mako_cpue.png", mako_cpue,
        width = 8, height = 6, dpi=300, bg="white")
 
 write.csv(pred.df.mako, "makoCPUE.csv", row.names = F)
 pred.df.mako <- read.csv('makoCPUE.csv')
+
 #### Oceanic whitetip ####
-mod.oceanicwhitetip.wcpfc <- gam(data=WCPFC_oceanicwhitetip_data, 
-                                 Captures ~ s(Lat, k=13) + s(Long2) + ti(Long2,Lat, k=8) + Year + 
-                                   offset(log_hooks),
-                                 family=nb, method='ML')
-gam.check(mod.oceanicwhitetip.wcpfc)
-appraise(mod.oceanicwhitetip.wcpfc, method='simulate')
+oceanicwhitetip <- WCPFC_oceanicwhitetip_data[,c("Lat","Long2","Year","Captures")]
+oceanicwhitetip <- merge(fullgrid,oceanicwhitetip,by=c("Lat","Long2","Year"), all=T)
+oceanicwhitetip$Captures <- ifelse(is.na(oceanicwhitetip$Captures),0, oceanicwhitetip$Captures)
+
+mod.oceanicwhitetip.wcpfc <- gam(data=oceanicwhitetip, 
+                            Captures ~ s(Lat, k=17) + s(Long2, k=11) + ti(Long2,Lat, k=12) + Year + 
+                              offset(log_hooks),
+                            family=nb, method='REML')
+
+appraise(mod.oceanicwhitetip.wcpfc, method = "simulate")
 draw(mod.oceanicwhitetip.wcpfc)
-summary(mod.oceanicwhitetip.wcpfc)
-
-plot(mod.oceanicwhitetip.wcpfc)
-
-plot(x = predict(mod.oceanicwhitetip.wcpfc, type="response"),
-     y = mod.oceanicwhitetip.wcpfc$residuals, 
-     xlab = "Predicted Value")
-abline(0,0,col='red')
+gam.check(mod.oceanicwhitetip.wcpfc)
+mod.oceanicwhitetip.wcpfc$sp
 
 summary(mod.oceanicwhitetip.wcpfc)
 anova(mod.oceanicwhitetip.wcpfc)
 
-acf(residuals(mod.oceanicwhitetip.wcpfc))
+plot(x = predict(mod.oceanicwhitetip.wcpfc, type="response"),
+     y = mod.oceanicwhitetip.wcpfc$residuals, 
+     xlab = "Predicted Value")
 
+acf(residuals(mod.oceanicwhitetip.wcpfc))
 plot(mod.oceanicwhitetip.wcpfc, all.terms=F, residuals=T)
 
 pred.df.oceanicwhitetip <- preds.df
@@ -385,7 +391,7 @@ pred.df.oceanicwhitetip$cpuefit <- preds_oceanicwhitetip$se.fit
 pred.df.oceanicwhitetip$log_cpue <- preds_oceanicwhitetip_log$fit
 pred.df.oceanicwhitetip$log_cpuefit <- preds_oceanicwhitetip_log$se.fit
 
-OCScpue <- ggplot(pred.df.oceanicwhitetip, aes(x=Long2,y=Lat)) +
+oceanicwhitetipcpue <- ggplot(pred.df.oceanicwhitetip, aes(x=Long2,y=Lat)) +
   geom_raster(aes(fill=log_cpue)) +
   geom_map(data = world, map = world, aes(long, lat, map_id = region)) +
   scale_y_continuous(name="Latitude", breaks=c(seq(-50, 50, 25))) +
@@ -397,67 +403,64 @@ OCScpue <- ggplot(pred.df.oceanicwhitetip, aes(x=Long2,y=Lat)) +
         panel.border = element_rect(colour='black', fill=NA, size=1)) +
   ggtitle("Oceanic Whitetip")
 
-OCScpue
-ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/OCScpue.png", OCScpue,
+oceanicwhitetipcpue
+ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/oceanicwhitetipcpue.png", oceanicwhitetipcpue,
        width = 8, height = 6, dpi=300, bg="white")
 
 write.csv(pred.df.oceanicwhitetip, "oceanicwhitetipCPUE.csv", row.names = F)
-pred.df.oceanicwhitetip <- read.csv('oceanicwhitetipCPUE.csv')
+pred.df.oceanicwhitetip <- read.csv("oceanicwhitetipCPUE.csv")
 #### Other Sharks ####
 others <- aggregate(data=WCPFC_othersharks_data, Captures ~ Lat + Long2 + Year, FUN='sum')
-other_hooks <- aggregate(data=WCPFC_othersharks_data, hooks ~ Lat + Long2 + Year, FUN='mean')
-others <- merge(others, other_hooks, by=c("Lat", "Long2", "Year"), all=T)
-others$log_hooks <- log(others$hooks)
+others <- merge(fullgrid,others,by=c("Lat","Long2","Year"), all=T)
+others$Captures <- ifelse(is.na(others$Captures),0, others$Captures)
 
-mod.othersharks.wcpfc <- gam(data=others, 
-                             Captures ~ s(Lat, k=15) + s(Long2, k=11) + ti(Long2,Lat,k=9) + Year + 
-                               offset(log_hooks),
-                             family=nb, method='ML')
-gam.check(mod.othersharks.wcpfc)
-appraise(mod.othersharks.wcpfc, method='simulate')
-draw(mod.othersharks.wcpfc)
-summary(mod.othersharks.wcpfc)
+mod.other.wcpfc <- gam(data=others, 
+                          Captures ~ s(Long2, k=12) + s(Lat, k=14) + ti(Long2,Lat, k=11) + Year + 
+                            offset(log_hooks),
+                          family=nb, method="REML")
 
-plot(mod.othersharks.wcpfc)
+appraise(mod.other.wcpfc, method = "simulate")
+draw(mod.other.wcpfc)
+gam.check(mod.other.wcpfc)
+mod.other.wcpfc$sp
 
-plot(x = predict(mod.othersharks.wcpfc, type="response"),
-     y = mod.othersharks.wcpfc$residuals, 
+summary(mod.other.wcpfc)
+anova(mod.other.wcpfc)
+
+plot(x = predict(mod.other.wcpfc, type="response"),
+     y = mod.other.wcpfc$residuals, 
      xlab = "Predicted Value")
-abline(0,0,col='red')
 
-summary(mod.othersharks.wcpfc)
-anova(mod.othersharks.wcpfc)
+acf(residuals(mod.other.wcpfc))
+plot(mod.other.wcpfc, all.terms=F, residuals=T)
 
-acf(residuals(mod.othersharks.wcpfc))
+pred.df.other <- preds.df
+preds_other = predict(mod.other.wcpfc, newdata=preds.df, type="response", se.fit=T)
+preds_other_log = predict(mod.other.wcpfc, newdata=preds.df, se.fit=T)
+pred.df.other$cpue <- preds_other$fit
+pred.df.other$cpuefit <- preds_other$se.fit
+pred.df.other$log_cpue <- preds_other_log$fit
+pred.df.other$log_cpuefit <- preds_other_log$se.fit
 
-plot(mod.othersharks.wcpfc, all.terms=F, residuals=T)
-
-pred.df.othersharks <- preds.df
-preds_othersharks = predict(mod.othersharks.wcpfc, newdata=preds.df, type="response", se.fit=T)
-preds_othersharks_log = predict(mod.othersharks.wcpfc, newdata=preds.df, se.fit=T)
-pred.df.othersharks$cpue <- preds_othersharks$fit
-pred.df.othersharks$cpuefit <- preds_othersharks$se.fit
-pred.df.othersharks$log_cpue <- preds_othersharks_log$fit
-pred.df.othersharks$log_cpuefit <- preds_othersharks_log$se.fit
-
-othercpue <- ggplot(pred.df.othersharks, aes(x=Long2,y=Lat)) +
+other_cpue <- ggplot(pred.df.other, aes(x=Long2,y=Lat)) +
   geom_raster(aes(fill=log_cpue)) +
   geom_map(data = world, map = world, aes(long, lat, map_id = region)) +
   scale_y_continuous(name="Latitude", breaks=c(seq(-50, 50, 25))) +
   scale_x_continuous(name="Longitude", breaks=c(seq(130, 230, 25)), labels = c(130,155,180,-155,-130)) +
   coord_cartesian(xlim=c(122,233), ylim=c(-54,49), expand=F) +
+  geom_polygon(data = pyf_shp, aes(x = maplong, y = lat, group = group), color="black", fill=NA, size = 0.6) +
   scale_fill_viridis(name="Log CPUE", alpha=0.85, option="H",limits=c(-10.5,4.5),breaks=c(seq(-10,4,2))) +
   theme(panel.background = element_rect(fill="white", colour = "black"),
         panel.grid.major = element_line(colour="grey93"),
-        panel.border = element_rect(colour='black', fill=NA, size=1))+
+        panel.border = element_rect(colour='black', fill=NA, linewidth = 1)) +
   ggtitle("Other Sharks")
 
-othercpue
-ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/othercpue.png", othercpue,
+other_cpue
+ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/other_cpue.png", other_cpue,
        width = 8, height = 6, dpi=300, bg="white")
 
-write.csv(pred.df.othersharks, "othersharksCPUE.csv", row.names = F)
-pred.df.othersharks <- read.csv("othersharksCPUE.csv")
+write.csv(pred.df.other, "otherCPUE.csv", row.names = F)
+pred.df.other <- read.csv('otherCPUE.csv')
 #### Combine data ####
 
 WCPFC_CPUEs <- merge(pred.df.blueshark, pred.df.silkyshark, by=c("Year", "Lat", "Long2", "log_hooks"), all=T)
@@ -484,12 +487,12 @@ colnames(WCPFC_CPUEs)[21]<- "oceanicwhitetip.cpue"
 colnames(WCPFC_CPUEs)[22]<- "oceanicwhitetip.cpue.se"
 colnames(WCPFC_CPUEs)[23]<- "oceanicwhitetip.logcpue"
 colnames(WCPFC_CPUEs)[24]<- "oceanicwhitetip.logcpue.se"
-WCPFC_CPUEs <- merge(WCPFC_CPUEs, pred.df.hammerhead, by=c("Year", "Lat", "Long2", "log_hooks"), all=T)
+WCPFC_CPUEs <- merge(WCPFC_CPUEs, pred.df.hammer, by=c("Year", "Lat", "Long2", "log_hooks"), all=T)
 colnames(WCPFC_CPUEs)[25]<- "hammerhead.cpue"
 colnames(WCPFC_CPUEs)[26]<- "hammerhead.cpue.se"
 colnames(WCPFC_CPUEs)[27]<- "hammerhead.logcpue"
 colnames(WCPFC_CPUEs)[28]<- "hammerhead.logcpue.se"
-WCPFC_CPUEs <- merge(WCPFC_CPUEs, pred.df.othersharks, by=c("Year", "Lat", "Long2", "log_hooks"), all=T)
+WCPFC_CPUEs <- merge(WCPFC_CPUEs, pred.df.other, by=c("Year", "Lat", "Long2", "log_hooks"), all=T)
 colnames(WCPFC_CPUEs)[29]<- "othersharks.cpue"
 colnames(WCPFC_CPUEs)[30]<- "othersharks.cpue.se"
 colnames(WCPFC_CPUEs)[31]<- "othersharks.logcpue"
@@ -501,8 +504,9 @@ write.csv(WCPFC_CPUEs, "~/Desktop/Ongoing Projects/GFW Shark Sanctuary/working_d
 
 library(ggpubr)
 
-FigS2 <- ggarrange(BSHcpue,FALcpue,tsh_cpue,mak_cpue,OCScpue,hammercpue,othercpue,
+FigS2 <- ggarrange(BSHcpue,silkycpue,tsh_cpue,mako_cpue,oceanicwhitetipcpue,hammer_cpue,other_cpue,
                       ncol=4, nrow=2, common.legend = T, legend = 'bottom') 
 
 ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/FigS2.png", FigS2,
        width=10, height=5, dpi=300, bg='white')
+

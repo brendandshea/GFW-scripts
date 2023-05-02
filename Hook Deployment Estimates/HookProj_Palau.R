@@ -97,9 +97,6 @@ write.csv(palau2019, "palau2019.csv", row.names = F)
 
 #### plotting ####
 # Hours
-
-world_shp <- sf::st_as_sf(maps::map("world", plot = FALSE, fill = TRUE))
-
 #aggregate across fleets
 palau_2019 <- aggregate(data=palau_effort_2019, fishing_hours~cell_ll_lon+cell_ll_lat+fleet, FUN='sum')
 palau_2019 <- subset(palau_2019, fishing_hours != 0)
@@ -107,6 +104,8 @@ palau_2019$log_fishing_hours=ifelse(palau_2019$fishing_hours < 10, 0, log10(pala
 range(palau_2019$fishing_hours)
 
 colnames(palau_2019)[3] <- "Fleet"
+
+world_shp <- sf::st_as_sf(maps::map("world", plot = FALSE, fill = TRUE))
 
 palau2019plot <- palau_2019 %>%
   ggplot() +
