@@ -62,7 +62,7 @@ gamm1 <- readRDS("hooks_gamm.rds")
 kiribati_preds <- predict(gamm1, newdata=kiribati2019, se.fit=T)
 
 #determine "average" fleet to asssign to missing fleets
-newdata = data.frame(hours = 100, fleet = unique(kiribati2019$fleet), lat = 0, lon = -186)
+newdata = data.frame(hours = 100, fleet = unique(kiribati2019$fleet), lat = 0, lon = 186)
 fit <- predict(gamm1, newdata = newdata, se.fit = TRUE)
 newdata$pred = fit$fit
 newdata$se.fit = fit$se.fit 

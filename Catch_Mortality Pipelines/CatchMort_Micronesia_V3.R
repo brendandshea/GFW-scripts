@@ -56,9 +56,6 @@ r_bsh = 2
 
 micronesia_bsh <- micronesia_comb[,c(1:4,9,10)]
 
-bsh_cm <- runif(1000,mortality$HookMin[r_bsh],mortality$HookMax[r_bsh]) 
-bsh_prm <- rlogitnorm(1000, mortality$logit.prm[r_bsh],mortality$logit.prm.se[r_bsh]) 
-
 micronesia_bsh_catches <- matrix(nrow=n, ncol=1000)
 micronesia_bsh_DOA <- matrix(nrow=n, ncol=1000)
 micronesia_bsh_released <- matrix(nrow=n, ncol=1000)
@@ -68,9 +65,9 @@ micronesia_bsh_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     micronesia_bsh_catches[j,i] <- micronesia_hook_preds[j,i]/1000 * rlnorm(1, micronesia_comb$blueshark.logcpue[j], micronesia_comb$blueshark.logcpue.se[j])
-    micronesia_bsh_DOA[j,i] <- micronesia_bsh_catches[j,i] * bsh_cm[i] 
+    micronesia_bsh_DOA[j,i] <- micronesia_bsh_catches[j,i] * runif(1,mortality$HookMin[r_bsh],mortality$HookMax[r_bsh]) 
     micronesia_bsh_released[j,i] <- micronesia_bsh_catches[j,i] - micronesia_bsh_DOA[j,i]
-    micronesia_bsh_PRM[j,i] <- micronesia_bsh_released[j,i] * bsh_prm[i] 
+    micronesia_bsh_PRM[j,i] <- micronesia_bsh_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_bsh],mortality$logit.prm.se[r_bsh]) 
     micronesia_bsh_total[j,i] <- micronesia_bsh_DOA[j,i] + micronesia_bsh_PRM[j,i]
   }
 }
@@ -96,9 +93,6 @@ r_silky=5 #row 5 in mortality; need to change this for each species when drawing
 
 micronesia_silky <- micronesia_comb[,c(1:4,13,14)] #create dataframe
 
-silky_cm <- runif(1000,mortality$HookMin[r_silky],mortality$HookMax[r_silky]) 
-silky_prm <- rlogitnorm(1000, mortality$logit.prm[r_silky],mortality$logit.prm.se[r_silky]) 
-
 micronesia_silky_catches <- matrix(nrow=n, ncol=1000)
 micronesia_silky_DOA <- matrix(nrow=n, ncol=1000)
 micronesia_silky_released <- matrix(nrow=n, ncol=1000)
@@ -108,9 +102,9 @@ micronesia_silky_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     micronesia_silky_catches[j,i] <- micronesia_hook_preds[j,i]/1000 * rlnorm(1, micronesia_comb$silkyshark.logcpue[j], micronesia_comb$silkyshark.logcpue.se[j])
-    micronesia_silky_DOA[j,i] <- micronesia_silky_catches[j,i] * silky_cm[i] 
+    micronesia_silky_DOA[j,i] <- micronesia_silky_catches[j,i] * runif(1,mortality$HookMin[r_silky],mortality$HookMax[r_silky])
     micronesia_silky_released[j,i] <- micronesia_silky_catches[j,i] - micronesia_silky_DOA[j,i]
-    micronesia_silky_PRM[j,i] <- micronesia_silky_released[j,i] * silky_prm[i] 
+    micronesia_silky_PRM[j,i] <- micronesia_silky_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_silky],mortality$logit.prm.se[r_silky]) 
     micronesia_silky_total[j,i] <- micronesia_silky_DOA[j,i] + micronesia_silky_PRM[j,i]
   }
 }
@@ -137,9 +131,6 @@ r_thresher = 1
 
 micronesia_thresher <- micronesia_comb[,c(1:4,21,22)] #create dataframe
 
-thresher_cm <- runif(1000,mortality$HookMin[r_thresher],mortality$HookMax[r_thresher]) 
-thresher_prm <- rlogitnorm(1000, mortality$logit.prm[r_thresher],mortality$logit.prm.se[r_thresher]) 
-
 micronesia_thresher_catches <- matrix(nrow=n, ncol=1000)
 micronesia_thresher_DOA <- matrix(nrow=n, ncol=1000)
 micronesia_thresher_released <- matrix(nrow=n, ncol=1000)
@@ -149,9 +140,9 @@ micronesia_thresher_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     micronesia_thresher_catches[j,i] <- micronesia_hook_preds[j,i]/1000 * rlnorm(1, micronesia_comb$thresher.logcpue[j], micronesia_comb$thresher.logcpue.se[j])
-    micronesia_thresher_DOA[j,i] <- micronesia_thresher_catches[j,i] * thresher_cm[i] 
+    micronesia_thresher_DOA[j,i] <- micronesia_thresher_catches[j,i] * runif(1,mortality$HookMin[r_thresher],mortality$HookMax[r_thresher]) 
     micronesia_thresher_released[j,i] <- micronesia_thresher_catches[j,i] - micronesia_thresher_DOA[j,i]
-    micronesia_thresher_PRM[j,i] <- micronesia_thresher_released[j,i] * thresher_prm[i] 
+    micronesia_thresher_PRM[j,i] <- micronesia_thresher_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_thresher],mortality$logit.prm.se[r_thresher])  
     micronesia_thresher_total[j,i] <- micronesia_thresher_DOA[j,i] + micronesia_thresher_PRM[j,i]
   }
 }
@@ -178,9 +169,6 @@ r_mako = 4
 
 micronesia_mako <- micronesia_comb[,c(1:4,17,18)] #create dataframe
 
-mako_cm <- runif(1000,mortality$HookMin[r_mako],mortality$HookMax[r_mako]) 
-mako_prm <- rlogitnorm(1000, mortality$logit.prm[r_mako],mortality$logit.prm.se[r_mako]) 
-
 micronesia_mako_catches <- matrix(nrow=n, ncol=1000)
 micronesia_mako_DOA <- matrix(nrow=n, ncol=1000)
 micronesia_mako_released <- matrix(nrow=n, ncol=1000)
@@ -190,9 +178,9 @@ micronesia_mako_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     micronesia_mako_catches[j,i] <- micronesia_hook_preds[j,i]/1000 * rlnorm(1, micronesia_comb$mako.logcpue[j], micronesia_comb$mako.logcpue.se[j])
-    micronesia_mako_DOA[j,i] <- micronesia_mako_catches[j,i] * mako_cm[i] 
+    micronesia_mako_DOA[j,i] <- micronesia_mako_catches[j,i] * runif(1,mortality$HookMin[r_mako],mortality$HookMax[r_mako])
     micronesia_mako_released[j,i] <- micronesia_mako_catches[j,i] - micronesia_mako_DOA[j,i]
-    micronesia_mako_PRM[j,i] <- micronesia_mako_released[j,i] * mako_prm[i] 
+    micronesia_mako_PRM[j,i] <- micronesia_mako_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_mako],mortality$logit.prm.se[r_mako]) 
     micronesia_mako_total[j,i] <- micronesia_mako_DOA[j,i] + micronesia_mako_PRM[j,i]
   }
 }
@@ -218,8 +206,6 @@ micronesia_mako$total.sd = apply(micronesia_mako_total[,1:1000], 1, sd)
 r_oceanicwhitetip = 8
 
 micronesia_oceanicwhitetip <- micronesia_comb[,c(1:4,25,26)] #create dataframe
-oceanicwhitetip_cm <- runif(1000,mortality$HookMin[r_oceanicwhitetip],mortality$HookMax[r_oceanicwhitetip]) 
-oceanicwhitetip_prm <- rlogitnorm(1000, mortality$logit.prm[r_oceanicwhitetip],mortality$logit.prm.se[r_oceanicwhitetip]) 
 
 micronesia_oceanicwhitetip_catches <- matrix(nrow=n, ncol=1000)
 micronesia_oceanicwhitetip_DOA <- matrix(nrow=n, ncol=1000)
@@ -230,9 +216,9 @@ micronesia_oceanicwhitetip_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     micronesia_oceanicwhitetip_catches[j,i] <- micronesia_hook_preds[j,i]/1000 * rlnorm(1, micronesia_comb$oceanicwhitetip.logcpue[j], micronesia_comb$oceanicwhitetip.logcpue.se[j])
-    micronesia_oceanicwhitetip_DOA[j,i] <- micronesia_oceanicwhitetip_catches[j,i] * oceanicwhitetip_cm[i] 
+    micronesia_oceanicwhitetip_DOA[j,i] <- micronesia_oceanicwhitetip_catches[j,i] * runif(1,mortality$HookMin[r_oceanicwhitetip],mortality$HookMax[r_oceanicwhitetip]) 
     micronesia_oceanicwhitetip_released[j,i] <- micronesia_oceanicwhitetip_catches[j,i] - micronesia_oceanicwhitetip_DOA[j,i]
-    micronesia_oceanicwhitetip_PRM[j,i] <- micronesia_oceanicwhitetip_released[j,i] * oceanicwhitetip_prm[i] 
+    micronesia_oceanicwhitetip_PRM[j,i] <- micronesia_oceanicwhitetip_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_oceanicwhitetip],mortality$logit.prm.se[r_oceanicwhitetip]) 
     micronesia_oceanicwhitetip_total[j,i] <- micronesia_oceanicwhitetip_DOA[j,i] + micronesia_oceanicwhitetip_PRM[j,i]
   }
 }
@@ -259,9 +245,6 @@ r_hammerhead = 9
 
 micronesia_hammerhead <- micronesia_comb[,c(1:4,29,30)] #create dataframe
 
-hammerhead_cm <- runif(1000,mortality$HookMin[r_hammerhead],mortality$HookMax[r_hammerhead]) 
-hammerhead_prm <- rlogitnorm(1000, mortality$logit.prm[r_hammerhead],mortality$logit.prm.se[r_hammerhead]) 
-
 micronesia_hammerhead_catches <- matrix(nrow=n, ncol=1000)
 micronesia_hammerhead_DOA <- matrix(nrow=n, ncol=1000)
 micronesia_hammerhead_released <- matrix(nrow=n, ncol=1000)
@@ -271,9 +254,9 @@ micronesia_hammerhead_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     micronesia_hammerhead_catches[j,i] <- micronesia_hook_preds[j,i]/1000 * rlnorm(1, micronesia_comb$hammerhead.logcpue[j], micronesia_comb$hammerhead.logcpue.se[j])
-    micronesia_hammerhead_DOA[j,i] <- micronesia_hammerhead_catches[j,i] * hammerhead_cm[i] 
+    micronesia_hammerhead_DOA[j,i] <- micronesia_hammerhead_catches[j,i] * runif(1,mortality$HookMin[r_hammerhead],mortality$HookMax[r_hammerhead]) 
     micronesia_hammerhead_released[j,i] <- micronesia_hammerhead_catches[j,i] - micronesia_hammerhead_DOA[j,i]
-    micronesia_hammerhead_PRM[j,i] <- micronesia_hammerhead_released[j,i] * hammerhead_prm[i] 
+    micronesia_hammerhead_PRM[j,i] <- micronesia_hammerhead_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_hammerhead],mortality$logit.prm.se[r_hammerhead]) 
     micronesia_hammerhead_total[j,i] <- micronesia_hammerhead_DOA[j,i] + micronesia_hammerhead_PRM[j,i]
   }
 }
@@ -300,9 +283,6 @@ r_othersharks = 10
 
 micronesia_othersharks <- micronesia_comb[,c(1:4,33,34)] #create dataframe
 
-othersharks_cm <- runif(1000,mortality$HookMin[r_othersharks],mortality$HookMax[r_othersharks]) 
-othersharks_prm <- rlogitnorm(1000, mortality$logit.prm[r_othersharks],mortality$logit.prm.se[r_othersharks]) 
-
 micronesia_othersharks_catches <- matrix(nrow=n, ncol=1000)
 micronesia_othersharks_DOA <- matrix(nrow=n, ncol=1000)
 micronesia_othersharks_released <- matrix(nrow=n, ncol=1000)
@@ -312,9 +292,9 @@ micronesia_othersharks_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     micronesia_othersharks_catches[j,i] <- micronesia_hook_preds[j,i]/1000 * rlnorm(1, micronesia_comb$othersharks.logcpue[j], micronesia_comb$othersharks.logcpue.se[j])
-    micronesia_othersharks_DOA[j,i] <- micronesia_othersharks_catches[j,i] * othersharks_cm[i] 
+    micronesia_othersharks_DOA[j,i] <- micronesia_othersharks_catches[j,i] * runif(1,mortality$HookMin[r_othersharks],mortality$HookMax[r_othersharks]) 
     micronesia_othersharks_released[j,i] <- micronesia_othersharks_catches[j,i] - micronesia_othersharks_DOA[j,i]
-    micronesia_othersharks_PRM[j,i] <- micronesia_othersharks_released[j,i] * othersharks_prm[i] 
+    micronesia_othersharks_PRM[j,i] <- micronesia_othersharks_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_othersharks],mortality$logit.prm.se[r_othersharks]) 
     micronesia_othersharks_total[j,i] <- micronesia_othersharks_DOA[j,i] + micronesia_othersharks_PRM[j,i]
   }
 }

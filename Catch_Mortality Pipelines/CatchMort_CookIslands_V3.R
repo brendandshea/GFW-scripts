@@ -56,8 +56,8 @@ r_bsh = 2
 
 cookislands_bsh <- cookislands_comb[,c(1:4,9,10)]
 
-bsh_cm <- runif(1000,mortality$HookMin[r_bsh],mortality$HookMax[r_bsh]) 
-bsh_prm <- rlogitnorm(1000, mortality$logit.prm[r_bsh],mortality$logit.prm.se[r_bsh]) 
+
+rlogitnorm(1, mortality$logit.prm[r_bsh],mortality$logit.prm.se[r_bsh]) 
 
 cookislands_bsh_catches <- matrix(nrow=n, ncol=1000)
 cookislands_bsh_DOA <- matrix(nrow=n, ncol=1000)
@@ -68,9 +68,9 @@ cookislands_bsh_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     cookislands_bsh_catches[j,i] <- cookislands_hook_preds[j,i]/1000 * rlnorm(1, cookislands_comb$blueshark.logcpue[j], cookislands_comb$blueshark.logcpue.se[j])
-    cookislands_bsh_DOA[j,i] <- cookislands_bsh_catches[j,i] * bsh_cm[i] 
+    cookislands_bsh_DOA[j,i] <- cookislands_bsh_catches[j,i] * runif(1,mortality$HookMin[r_bsh],mortality$HookMax[r_bsh]) 
     cookislands_bsh_released[j,i] <- cookislands_bsh_catches[j,i] - cookislands_bsh_DOA[j,i]
-    cookislands_bsh_PRM[j,i] <- cookislands_bsh_released[j,i] * bsh_prm[i] 
+    cookislands_bsh_PRM[j,i] <- cookislands_bsh_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_bsh],mortality$logit.prm.se[r_bsh])
     cookislands_bsh_total[j,i] <- cookislands_bsh_DOA[j,i] + cookislands_bsh_PRM[j,i]
   }
 }
@@ -96,9 +96,6 @@ r_silky=5 #row 5 in mortality; need to change this for each species when drawing
 
 cookislands_silky <- cookislands_comb[,c(1:4,13,14)] #create dataframe
 
-silky_cm <- runif(1000,mortality$HookMin[r_silky],mortality$HookMax[r_silky]) 
-silky_prm <- rlogitnorm(1000, mortality$logit.prm[r_silky],mortality$logit.prm.se[r_silky]) 
-
 cookislands_silky_catches <- matrix(nrow=n, ncol=1000)
 cookislands_silky_DOA <- matrix(nrow=n, ncol=1000)
 cookislands_silky_released <- matrix(nrow=n, ncol=1000)
@@ -108,9 +105,9 @@ cookislands_silky_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     cookislands_silky_catches[j,i] <- cookislands_hook_preds[j,i]/1000 * rlnorm(1, cookislands_comb$silkyshark.logcpue[j], cookislands_comb$silkyshark.logcpue.se[j])
-    cookislands_silky_DOA[j,i] <- cookislands_silky_catches[j,i] * silky_cm[i] 
+    cookislands_silky_DOA[j,i] <- cookislands_silky_catches[j,i] * runif(1,mortality$HookMin[r_silky],mortality$HookMax[r_silky]) 
     cookislands_silky_released[j,i] <- cookislands_silky_catches[j,i] - cookislands_silky_DOA[j,i]
-    cookislands_silky_PRM[j,i] <- cookislands_silky_released[j,i] * silky_prm[i] 
+    cookislands_silky_PRM[j,i] <- cookislands_silky_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_silky],mortality$logit.prm.se[r_silky])  
     cookislands_silky_total[j,i] <- cookislands_silky_DOA[j,i] + cookislands_silky_PRM[j,i]
   }
 }
@@ -137,9 +134,6 @@ r_thresher = 1
 
 cookislands_thresher <- cookislands_comb[,c(1:4,21,22)] #create dataframe
 
-thresher_cm <- runif(1000,mortality$HookMin[r_thresher],mortality$HookMax[r_thresher]) 
-thresher_prm <- rlogitnorm(1000, mortality$logit.prm[r_thresher],mortality$logit.prm.se[r_thresher]) 
-
 cookislands_thresher_catches <- matrix(nrow=n, ncol=1000)
 cookislands_thresher_DOA <- matrix(nrow=n, ncol=1000)
 cookislands_thresher_released <- matrix(nrow=n, ncol=1000)
@@ -149,9 +143,9 @@ cookislands_thresher_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     cookislands_thresher_catches[j,i] <- cookislands_hook_preds[j,i]/1000 * rlnorm(1, cookislands_comb$thresher.logcpue[j], cookislands_comb$thresher.logcpue.se[j])
-    cookislands_thresher_DOA[j,i] <- cookislands_thresher_catches[j,i] * thresher_cm[i] 
+    cookislands_thresher_DOA[j,i] <- cookislands_thresher_catches[j,i] * runif(1,mortality$HookMin[r_thresher],mortality$HookMax[r_thresher]) 
     cookislands_thresher_released[j,i] <- cookislands_thresher_catches[j,i] - cookislands_thresher_DOA[j,i]
-    cookislands_thresher_PRM[j,i] <- cookislands_thresher_released[j,i] * thresher_prm[i] 
+    cookislands_thresher_PRM[j,i] <- cookislands_thresher_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_thresher],mortality$logit.prm.se[r_thresher]) 
     cookislands_thresher_total[j,i] <- cookislands_thresher_DOA[j,i] + cookislands_thresher_PRM[j,i]
   }
 }
@@ -178,9 +172,6 @@ r_mako = 4
 
 cookislands_mako <- cookislands_comb[,c(1:4,17,18)] #create dataframe
 
-mako_cm <- runif(1000,mortality$HookMin[r_mako],mortality$HookMax[r_mako]) 
-mako_prm <- rlogitnorm(1000, mortality$logit.prm[r_mako],mortality$logit.prm.se[r_mako]) 
-
 cookislands_mako_catches <- matrix(nrow=n, ncol=1000)
 cookislands_mako_DOA <- matrix(nrow=n, ncol=1000)
 cookislands_mako_released <- matrix(nrow=n, ncol=1000)
@@ -190,9 +181,9 @@ cookislands_mako_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     cookislands_mako_catches[j,i] <- cookislands_hook_preds[j,i]/1000 * rlnorm(1, cookislands_comb$mako.logcpue[j], cookislands_comb$mako.logcpue.se[j])
-    cookislands_mako_DOA[j,i] <- cookislands_mako_catches[j,i] * mako_cm[i] 
+    cookislands_mako_DOA[j,i] <- cookislands_mako_catches[j,i] * runif(1,mortality$HookMin[r_mako],mortality$HookMax[r_mako]) 
     cookislands_mako_released[j,i] <- cookislands_mako_catches[j,i] - cookislands_mako_DOA[j,i]
-    cookislands_mako_PRM[j,i] <- cookislands_mako_released[j,i] * mako_prm[i] 
+    cookislands_mako_PRM[j,i] <- cookislands_mako_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_mako],mortality$logit.prm.se[r_mako]) 
     cookislands_mako_total[j,i] <- cookislands_mako_DOA[j,i] + cookislands_mako_PRM[j,i]
   }
 }
@@ -218,8 +209,6 @@ cookislands_mako$total.sd = apply(cookislands_mako_total[,1:1000], 1, sd)
 r_oceanicwhitetip = 8
 
 cookislands_oceanicwhitetip <- cookislands_comb[,c(1:4,25,26)] #create dataframe
-oceanicwhitetip_cm <- runif(1000,mortality$HookMin[r_oceanicwhitetip],mortality$HookMax[r_oceanicwhitetip]) 
-oceanicwhitetip_prm <- rlogitnorm(1000, mortality$logit.prm[r_oceanicwhitetip],mortality$logit.prm.se[r_oceanicwhitetip]) 
 
 cookislands_oceanicwhitetip_catches <- matrix(nrow=n, ncol=1000)
 cookislands_oceanicwhitetip_DOA <- matrix(nrow=n, ncol=1000)
@@ -230,9 +219,9 @@ cookislands_oceanicwhitetip_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     cookislands_oceanicwhitetip_catches[j,i] <- cookislands_hook_preds[j,i]/1000 * rlnorm(1, cookislands_comb$oceanicwhitetip.logcpue[j], cookislands_comb$oceanicwhitetip.logcpue.se[j])
-    cookislands_oceanicwhitetip_DOA[j,i] <- cookislands_oceanicwhitetip_catches[j,i] * oceanicwhitetip_cm[i] 
+    cookislands_oceanicwhitetip_DOA[j,i] <- cookislands_oceanicwhitetip_catches[j,i] * runif(1,mortality$HookMin[r_oceanicwhitetip],mortality$HookMax[r_oceanicwhitetip]) 
     cookislands_oceanicwhitetip_released[j,i] <- cookislands_oceanicwhitetip_catches[j,i] - cookislands_oceanicwhitetip_DOA[j,i]
-    cookislands_oceanicwhitetip_PRM[j,i] <- cookislands_oceanicwhitetip_released[j,i] * oceanicwhitetip_prm[i] 
+    cookislands_oceanicwhitetip_PRM[j,i] <- cookislands_oceanicwhitetip_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_oceanicwhitetip],mortality$logit.prm.se[r_oceanicwhitetip]) 
     cookislands_oceanicwhitetip_total[j,i] <- cookislands_oceanicwhitetip_DOA[j,i] + cookislands_oceanicwhitetip_PRM[j,i]
   }
 }
@@ -259,9 +248,6 @@ r_hammerhead = 9
 
 cookislands_hammerhead <- cookislands_comb[,c(1:4,29,30)] #create dataframe
 
-hammerhead_cm <- runif(1000,mortality$HookMin[r_hammerhead],mortality$HookMax[r_hammerhead]) 
-hammerhead_prm <- rlogitnorm(1000, mortality$logit.prm[r_hammerhead],mortality$logit.prm.se[r_hammerhead]) 
-
 cookislands_hammerhead_catches <- matrix(nrow=n, ncol=1000)
 cookislands_hammerhead_DOA <- matrix(nrow=n, ncol=1000)
 cookislands_hammerhead_released <- matrix(nrow=n, ncol=1000)
@@ -271,9 +257,9 @@ cookislands_hammerhead_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     cookislands_hammerhead_catches[j,i] <- cookislands_hook_preds[j,i]/1000 * rlnorm(1, cookislands_comb$hammerhead.logcpue[j], cookislands_comb$hammerhead.logcpue.se[j])
-    cookislands_hammerhead_DOA[j,i] <- cookislands_hammerhead_catches[j,i] * hammerhead_cm[i] 
+    cookislands_hammerhead_DOA[j,i] <- cookislands_hammerhead_catches[j,i] * runif(1,mortality$HookMin[r_hammerhead],mortality$HookMax[r_hammerhead]) 
     cookislands_hammerhead_released[j,i] <- cookislands_hammerhead_catches[j,i] - cookislands_hammerhead_DOA[j,i]
-    cookislands_hammerhead_PRM[j,i] <- cookislands_hammerhead_released[j,i] * hammerhead_prm[i] 
+    cookislands_hammerhead_PRM[j,i] <- cookislands_hammerhead_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_hammerhead],mortality$logit.prm.se[r_hammerhead]) 
     cookislands_hammerhead_total[j,i] <- cookislands_hammerhead_DOA[j,i] + cookislands_hammerhead_PRM[j,i]
   }
 }
@@ -300,9 +286,6 @@ r_othersharks = 10
 
 cookislands_othersharks <- cookislands_comb[,c(1:4,33,34)] #create dataframe
 
-othersharks_cm <- runif(1000,mortality$HookMin[r_othersharks],mortality$HookMax[r_othersharks]) 
-othersharks_prm <- rlogitnorm(1000, mortality$logit.prm[r_othersharks],mortality$logit.prm.se[r_othersharks]) 
-
 cookislands_othersharks_catches <- matrix(nrow=n, ncol=1000)
 cookislands_othersharks_DOA <- matrix(nrow=n, ncol=1000)
 cookislands_othersharks_released <- matrix(nrow=n, ncol=1000)
@@ -312,9 +295,9 @@ cookislands_othersharks_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     cookislands_othersharks_catches[j,i] <- cookislands_hook_preds[j,i]/1000 * rlnorm(1, cookislands_comb$othersharks.logcpue[j], cookislands_comb$othersharks.logcpue.se[j])
-    cookislands_othersharks_DOA[j,i] <- cookislands_othersharks_catches[j,i] * othersharks_cm[i] 
+    cookislands_othersharks_DOA[j,i] <- cookislands_othersharks_catches[j,i] * runif(1,mortality$HookMin[r_othersharks],mortality$HookMax[r_othersharks])  
     cookislands_othersharks_released[j,i] <- cookislands_othersharks_catches[j,i] - cookislands_othersharks_DOA[j,i]
-    cookislands_othersharks_PRM[j,i] <- cookislands_othersharks_released[j,i] * othersharks_prm[i] 
+    cookislands_othersharks_PRM[j,i] <- cookislands_othersharks_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_othersharks],mortality$logit.prm.se[r_othersharks])
     cookislands_othersharks_total[j,i] <- cookislands_othersharks_DOA[j,i] + cookislands_othersharks_PRM[j,i]
   }
 }

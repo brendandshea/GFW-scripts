@@ -56,9 +56,6 @@ r_bsh = 2
 
 marshallislands_bsh <- marshallislands_comb[,c(1:4,9,10)]
 
-bsh_cm <- runif(1000,mortality$HookMin[r_bsh],mortality$HookMax[r_bsh]) 
-bsh_prm <- rlogitnorm(1000, mortality$logit.prm[r_bsh],mortality$logit.prm.se[r_bsh]) 
-
 marshallislands_bsh_catches <- matrix(nrow=n, ncol=1000)
 marshallislands_bsh_DOA <- matrix(nrow=n, ncol=1000)
 marshallislands_bsh_released <- matrix(nrow=n, ncol=1000)
@@ -68,9 +65,9 @@ marshallislands_bsh_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     marshallislands_bsh_catches[j,i] <- marshallislands_hook_preds[j,i]/1000 * rlnorm(1, marshallislands_comb$blueshark.logcpue[j], marshallislands_comb$blueshark.logcpue.se[j])
-    marshallislands_bsh_DOA[j,i] <- marshallislands_bsh_catches[j,i] * bsh_cm[i] 
+    marshallislands_bsh_DOA[j,i] <- marshallislands_bsh_catches[j,i] *runif(1,mortality$HookMin[r_bsh],mortality$HookMax[r_bsh]) 
     marshallislands_bsh_released[j,i] <- marshallislands_bsh_catches[j,i] - marshallislands_bsh_DOA[j,i]
-    marshallislands_bsh_PRM[j,i] <- marshallislands_bsh_released[j,i] * bsh_prm[i] 
+    marshallislands_bsh_PRM[j,i] <- marshallislands_bsh_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_bsh],mortality$logit.prm.se[r_bsh]) 
     marshallislands_bsh_total[j,i] <- marshallislands_bsh_DOA[j,i] + marshallislands_bsh_PRM[j,i]
   }
 }
@@ -96,9 +93,6 @@ r_silky=5 #row 5 in mortality; need to change this for each species when drawing
 
 marshallislands_silky <- marshallislands_comb[,c(1:4,13,14)] #create dataframe
 
-silky_cm <- runif(1000,mortality$HookMin[r_silky],mortality$HookMax[r_silky]) 
-silky_prm <- rlogitnorm(1000, mortality$logit.prm[r_silky],mortality$logit.prm.se[r_silky]) 
-
 marshallislands_silky_catches <- matrix(nrow=n, ncol=1000)
 marshallislands_silky_DOA <- matrix(nrow=n, ncol=1000)
 marshallislands_silky_released <- matrix(nrow=n, ncol=1000)
@@ -108,9 +102,9 @@ marshallislands_silky_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     marshallislands_silky_catches[j,i] <- marshallislands_hook_preds[j,i]/1000 * rlnorm(1, marshallislands_comb$silkyshark.logcpue[j], marshallislands_comb$silkyshark.logcpue.se[j])
-    marshallislands_silky_DOA[j,i] <- marshallislands_silky_catches[j,i] * silky_cm[i] 
+    marshallislands_silky_DOA[j,i] <- marshallislands_silky_catches[j,i] * runif(1,mortality$HookMin[r_silky],mortality$HookMax[r_silky]) 
     marshallislands_silky_released[j,i] <- marshallislands_silky_catches[j,i] - marshallislands_silky_DOA[j,i]
-    marshallislands_silky_PRM[j,i] <- marshallislands_silky_released[j,i] * silky_prm[i] 
+    marshallislands_silky_PRM[j,i] <- marshallislands_silky_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_silky],mortality$logit.prm.se[r_silky])  
     marshallislands_silky_total[j,i] <- marshallislands_silky_DOA[j,i] + marshallislands_silky_PRM[j,i]
   }
 }
@@ -137,9 +131,6 @@ r_thresher = 1
 
 marshallislands_thresher <- marshallislands_comb[,c(1:4,21,22)] #create dataframe
 
-thresher_cm <- runif(1000,mortality$HookMin[r_thresher],mortality$HookMax[r_thresher]) 
-thresher_prm <- rlogitnorm(1000, mortality$logit.prm[r_thresher],mortality$logit.prm.se[r_thresher]) 
-
 marshallislands_thresher_catches <- matrix(nrow=n, ncol=1000)
 marshallislands_thresher_DOA <- matrix(nrow=n, ncol=1000)
 marshallislands_thresher_released <- matrix(nrow=n, ncol=1000)
@@ -149,9 +140,9 @@ marshallislands_thresher_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     marshallislands_thresher_catches[j,i] <- marshallislands_hook_preds[j,i]/1000 * rlnorm(1, marshallislands_comb$thresher.logcpue[j], marshallislands_comb$thresher.logcpue.se[j])
-    marshallislands_thresher_DOA[j,i] <- marshallislands_thresher_catches[j,i] * thresher_cm[i] 
+    marshallislands_thresher_DOA[j,i] <- marshallislands_thresher_catches[j,i] * runif(1,mortality$HookMin[r_thresher],mortality$HookMax[r_thresher])  
     marshallislands_thresher_released[j,i] <- marshallislands_thresher_catches[j,i] - marshallislands_thresher_DOA[j,i]
-    marshallislands_thresher_PRM[j,i] <- marshallislands_thresher_released[j,i] * thresher_prm[i] 
+    marshallislands_thresher_PRM[j,i] <- marshallislands_thresher_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_thresher],mortality$logit.prm.se[r_thresher])  
     marshallislands_thresher_total[j,i] <- marshallislands_thresher_DOA[j,i] + marshallislands_thresher_PRM[j,i]
   }
 }
@@ -178,9 +169,6 @@ r_mako = 4
 
 marshallislands_mako <- marshallislands_comb[,c(1:4,17,18)] #create dataframe
 
-mako_cm <- runif(1000,mortality$HookMin[r_mako],mortality$HookMax[r_mako]) 
-mako_prm <- rlogitnorm(1000, mortality$logit.prm[r_mako],mortality$logit.prm.se[r_mako]) 
-
 marshallislands_mako_catches <- matrix(nrow=n, ncol=1000)
 marshallislands_mako_DOA <- matrix(nrow=n, ncol=1000)
 marshallislands_mako_released <- matrix(nrow=n, ncol=1000)
@@ -190,9 +178,9 @@ marshallislands_mako_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     marshallislands_mako_catches[j,i] <- marshallislands_hook_preds[j,i]/1000 * rlnorm(1, marshallislands_comb$mako.logcpue[j], marshallislands_comb$mako.logcpue.se[j])
-    marshallislands_mako_DOA[j,i] <- marshallislands_mako_catches[j,i] * mako_cm[i] 
+    marshallislands_mako_DOA[j,i] <- marshallislands_mako_catches[j,i] * runif(1,mortality$HookMin[r_mako],mortality$HookMax[r_mako])  
     marshallislands_mako_released[j,i] <- marshallislands_mako_catches[j,i] - marshallislands_mako_DOA[j,i]
-    marshallislands_mako_PRM[j,i] <- marshallislands_mako_released[j,i] * mako_prm[i] 
+    marshallislands_mako_PRM[j,i] <- marshallislands_mako_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_mako],mortality$logit.prm.se[r_mako])  
     marshallislands_mako_total[j,i] <- marshallislands_mako_DOA[j,i] + marshallislands_mako_PRM[j,i]
   }
 }
@@ -218,8 +206,6 @@ marshallislands_mako$total.sd = apply(marshallislands_mako_total[,1:1000], 1, sd
 r_oceanicwhitetip = 8
 
 marshallislands_oceanicwhitetip <- marshallislands_comb[,c(1:4,25,26)] #create dataframe
-oceanicwhitetip_cm <- runif(1000,mortality$HookMin[r_oceanicwhitetip],mortality$HookMax[r_oceanicwhitetip]) 
-oceanicwhitetip_prm <- rlogitnorm(1000, mortality$logit.prm[r_oceanicwhitetip],mortality$logit.prm.se[r_oceanicwhitetip]) 
 
 marshallislands_oceanicwhitetip_catches <- matrix(nrow=n, ncol=1000)
 marshallislands_oceanicwhitetip_DOA <- matrix(nrow=n, ncol=1000)
@@ -230,9 +216,9 @@ marshallislands_oceanicwhitetip_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     marshallislands_oceanicwhitetip_catches[j,i] <- marshallislands_hook_preds[j,i]/1000 * rlnorm(1, marshallislands_comb$oceanicwhitetip.logcpue[j], marshallislands_comb$oceanicwhitetip.logcpue.se[j])
-    marshallislands_oceanicwhitetip_DOA[j,i] <- marshallislands_oceanicwhitetip_catches[j,i] * oceanicwhitetip_cm[i] 
+    marshallislands_oceanicwhitetip_DOA[j,i] <- marshallislands_oceanicwhitetip_catches[j,i] * runif(1,mortality$HookMin[r_oceanicwhitetip],mortality$HookMax[r_oceanicwhitetip]) 
     marshallislands_oceanicwhitetip_released[j,i] <- marshallislands_oceanicwhitetip_catches[j,i] - marshallislands_oceanicwhitetip_DOA[j,i]
-    marshallislands_oceanicwhitetip_PRM[j,i] <- marshallislands_oceanicwhitetip_released[j,i] * oceanicwhitetip_prm[i] 
+    marshallislands_oceanicwhitetip_PRM[j,i] <- marshallislands_oceanicwhitetip_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_oceanicwhitetip],mortality$logit.prm.se[r_oceanicwhitetip])
     marshallislands_oceanicwhitetip_total[j,i] <- marshallislands_oceanicwhitetip_DOA[j,i] + marshallislands_oceanicwhitetip_PRM[j,i]
   }
 }
@@ -259,9 +245,6 @@ r_hammerhead = 9
 
 marshallislands_hammerhead <- marshallislands_comb[,c(1:4,29,30)] #create dataframe
 
-hammerhead_cm <- runif(1000,mortality$HookMin[r_hammerhead],mortality$HookMax[r_hammerhead]) 
-hammerhead_prm <- rlogitnorm(1000, mortality$logit.prm[r_hammerhead],mortality$logit.prm.se[r_hammerhead]) 
-
 marshallislands_hammerhead_catches <- matrix(nrow=n, ncol=1000)
 marshallislands_hammerhead_DOA <- matrix(nrow=n, ncol=1000)
 marshallislands_hammerhead_released <- matrix(nrow=n, ncol=1000)
@@ -271,9 +254,9 @@ marshallislands_hammerhead_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     marshallislands_hammerhead_catches[j,i] <- marshallislands_hook_preds[j,i]/1000 * rlnorm(1, marshallislands_comb$hammerhead.logcpue[j], marshallislands_comb$hammerhead.logcpue.se[j])
-    marshallislands_hammerhead_DOA[j,i] <- marshallislands_hammerhead_catches[j,i] * hammerhead_cm[i] 
+    marshallislands_hammerhead_DOA[j,i] <- marshallislands_hammerhead_catches[j,i] * runif(1,mortality$HookMin[r_hammerhead],mortality$HookMax[r_hammerhead]) 
     marshallislands_hammerhead_released[j,i] <- marshallislands_hammerhead_catches[j,i] - marshallislands_hammerhead_DOA[j,i]
-    marshallislands_hammerhead_PRM[j,i] <- marshallislands_hammerhead_released[j,i] * hammerhead_prm[i] 
+    marshallislands_hammerhead_PRM[j,i] <- marshallislands_hammerhead_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_hammerhead],mortality$logit.prm.se[r_hammerhead])
     marshallislands_hammerhead_total[j,i] <- marshallislands_hammerhead_DOA[j,i] + marshallislands_hammerhead_PRM[j,i]
   }
 }
@@ -300,9 +283,6 @@ r_othersharks = 10
 
 marshallislands_othersharks <- marshallislands_comb[,c(1:4,33,34)] #create dataframe
 
-othersharks_cm <- runif(1000,mortality$HookMin[r_othersharks],mortality$HookMax[r_othersharks]) 
-othersharks_prm <- rlogitnorm(1000, mortality$logit.prm[r_othersharks],mortality$logit.prm.se[r_othersharks]) 
-
 marshallislands_othersharks_catches <- matrix(nrow=n, ncol=1000)
 marshallislands_othersharks_DOA <- matrix(nrow=n, ncol=1000)
 marshallislands_othersharks_released <- matrix(nrow=n, ncol=1000)
@@ -312,9 +292,9 @@ marshallislands_othersharks_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     marshallislands_othersharks_catches[j,i] <- marshallislands_hook_preds[j,i]/1000 * rlnorm(1, marshallislands_comb$othersharks.logcpue[j], marshallislands_comb$othersharks.logcpue.se[j])
-    marshallislands_othersharks_DOA[j,i] <- marshallislands_othersharks_catches[j,i] * othersharks_cm[i] 
+    marshallislands_othersharks_DOA[j,i] <- marshallislands_othersharks_catches[j,i] * runif(1,mortality$HookMin[r_othersharks],mortality$HookMax[r_othersharks])
     marshallislands_othersharks_released[j,i] <- marshallislands_othersharks_catches[j,i] - marshallislands_othersharks_DOA[j,i]
-    marshallislands_othersharks_PRM[j,i] <- marshallislands_othersharks_released[j,i] * othersharks_prm[i] 
+    marshallislands_othersharks_PRM[j,i] <- marshallislands_othersharks_released[j,i] *rlogitnorm(1, mortality$logit.prm[r_othersharks],mortality$logit.prm.se[r_othersharks]) 
     marshallislands_othersharks_total[j,i] <- marshallislands_othersharks_DOA[j,i] + marshallislands_othersharks_PRM[j,i]
   }
 }

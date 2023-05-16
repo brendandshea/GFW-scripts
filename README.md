@@ -20,10 +20,10 @@ Shark Sanctuary Workflow - Longline
   
 4.	Standardizing CPUE data - not sure if you wanted to see this part or not, I included the script, and the data.
 		
-		WCPFC bycatch_GAMMs.R
+		WCPFC bycatch_GAMMs_V3_.R
 		WCPFC_bycatch.csv
 
 
 5.	Sanctuary-specific prediction loops for catch and mortality.
 
-      		CatchMort_SANCTUARY_V3.R
+      		CatchMort_SANCTUARY_V5.R

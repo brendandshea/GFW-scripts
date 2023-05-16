@@ -110,7 +110,8 @@ mod.thresher.wcpfc <- gam(data=threshers,
                                   offset(log_hooks),
                                 family=nb, method="REML")
 
-appraise(mod.thresher.wcpfc, method = "simulate")
+thresher_diag <- appraise(mod.thresher.wcpfc, method = "simulate")
+thresher_diag
 draw(mod.thresher.wcpfc)
 gam.check(mod.thresher.wcpfc)
 mod.thresher.wcpfc$sp
@@ -162,7 +163,8 @@ mod.blueshark.wcpfc <- gam(data=blueshark,
                              offset(log_hooks),
                            family=nb, method='REML')
 
-appraise(mod.blueshark.wcpfc, method = "simulate")
+bsh_diag <- appraise(mod.blueshark.wcpfc, method = "simulate")
+bsh_diag 
 draw(mod.blueshark.wcpfc)
 gam.check(mod.blueshark.wcpfc)
 mod.blueshark.wcpfc$sp
@@ -213,7 +215,8 @@ mod.hammer.wcpfc <- gam(data=hammers,
                             offset(log_hooks),
                           family=nb, method="REML")
 
-appraise(mod.hammer.wcpfc, method = "simulate")
+hammer_diag <- appraise(mod.hammer.wcpfc, method = "simulate")
+hammer_diag
 draw(mod.hammer.wcpfc)
 gam.check(mod.hammer.wcpfc)
 mod.hammer.wcpfc$sp
@@ -265,7 +268,8 @@ mod.silkyshark.wcpfc <- gam(data=silkyshark,
                              offset(log_hooks),
                            family=nb, method='REML')
 
-appraise(mod.silkyshark.wcpfc, method = "simulate")
+silky_diag <- appraise(mod.silkyshark.wcpfc, method = "simulate")
+silky_diag 
 draw(mod.silkyshark.wcpfc)
 gam.check(mod.silkyshark.wcpfc)
 mod.silkyshark.wcpfc$sp
@@ -316,7 +320,8 @@ mod.mako.wcpfc <- gam(data=makos,
                           offset(log_hooks),
                         family=nb, method="REML")
 
-appraise(mod.mako.wcpfc, method = "simulate")
+mako_diag <- appraise(mod.mako.wcpfc, method = "simulate")
+mako_diag
 draw(mod.mako.wcpfc)
 gam.check(mod.mako.wcpfc)
 mod.mako.wcpfc$sp
@@ -368,7 +373,8 @@ mod.oceanicwhitetip.wcpfc <- gam(data=oceanicwhitetip,
                               offset(log_hooks),
                             family=nb, method='REML')
 
-appraise(mod.oceanicwhitetip.wcpfc, method = "simulate")
+ocs_diag <- appraise(mod.oceanicwhitetip.wcpfc, method = "simulate")
+ocs_diag
 draw(mod.oceanicwhitetip.wcpfc)
 gam.check(mod.oceanicwhitetip.wcpfc)
 mod.oceanicwhitetip.wcpfc$sp
@@ -419,7 +425,7 @@ mod.other.wcpfc <- gam(data=others,
                             offset(log_hooks),
                           family=nb, method="REML")
 
-appraise(mod.other.wcpfc, method = "simulate")
+other_diag <- appraise(mod.other.wcpfc, method = "simulate")
 draw(mod.other.wcpfc)
 gam.check(mod.other.wcpfc)
 mod.other.wcpfc$sp
@@ -509,4 +515,121 @@ FigS2 <- ggarrange(BSHcpue,silkycpue,tsh_cpue,mako_cpue,oceanicwhitetipcpue,hamm
 
 ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/FigS2.png", FigS2,
        width=10, height=5, dpi=300, bg='white')
+
+
+ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/bsh_diag.png", bsh_diag,
+       width=10, height=6, dpi=300, bg='white')
+
+ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/silky_diag.png", silky_diag,
+       width=10, height=6, dpi=300, bg='white')
+
+ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/thresher_diag.png", thresher_diag,
+       width=10, height=6, dpi=300, bg='white')
+
+ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/mako_diag.png", mako_diag,
+       width=10, height=6, dpi=300, bg='white')
+
+ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/ocs_diag.png", ocs_diag,
+       width=10, height=6, dpi=300, bg='white')
+
+ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/hammer_diag.png", hammer_diag,
+       width=10, height=6, dpi=300, bg='white')
+
+ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/other_diag.png", other_diag,
+       width=10, height=6, dpi=300, bg='white')
+
+#CPUE variation
+
+world <- map_data("world2")
+
+blueshark_resid<-ggplot(pred.df.blueshark) +
+  geom_tile(aes(x=Long2,y=Lat, fill=log_cpuefit)) +
+  geom_map(data = world, map = world, aes(long, lat, map_id = region)) +
+  scale_y_continuous(name="Latitude", breaks=c(seq(-50, 50, 25))) +
+  scale_x_continuous(name="Longitude", breaks=c(seq(130, 230, 25)), labels = c(130,155,180,-155,-130)) +
+  coord_cartesian(xlim=c(122,233), ylim=c(-54,49), expand=F) +
+  scale_fill_viridis(name="CPUE Standard Deviation\n(Log Scale)", alpha=0.85) +
+  theme(panel.background = element_rect(fill="white", colour = "black"),
+        panel.grid.major = element_line(colour="grey93"),
+        panel.border = element_rect(colour='black', fill=NA, linewidth = 1))+
+  ggtitle("Blue Shark")
+
+thresher_resid<-ggplot(pred.df.thresher) +
+  geom_tile(aes(x=Long2,y=Lat, fill=log_cpuefit)) +
+  geom_map(data = world, map = world, aes(long, lat, map_id = region)) +
+  scale_y_continuous(name="Latitude", breaks=c(seq(-50, 50, 25))) +
+  scale_x_continuous(name="Longitude", breaks=c(seq(130, 230, 25)), labels = c(130,155,180,-155,-130)) +
+  coord_cartesian(xlim=c(122,233), ylim=c(-54,49), expand=F) +
+  scale_fill_viridis(name="CPUE Standard Deviation\n(Log Scale)", alpha=0.85) +
+  theme(panel.background = element_rect(fill="white", colour = "black"),
+        panel.grid.major = element_line(colour="grey93"),
+        panel.border = element_rect(colour='black', fill=NA, linewidth = 1))+
+  ggtitle("Thresher Shark")
+
+hammer_resid<-ggplot(pred.df.hammer) +
+  geom_tile(aes(x=Long2,y=Lat, fill=log_cpuefit)) +
+  geom_map(data = world, map = world, aes(long, lat, map_id = region)) +
+  scale_y_continuous(name="Latitude", breaks=c(seq(-50, 50, 25))) +
+  scale_x_continuous(name="Longitude", breaks=c(seq(130, 230, 25)), labels = c(130,155,180,-155,-130)) +
+  coord_cartesian(xlim=c(122,233), ylim=c(-54,49), expand=F) +
+  scale_fill_viridis(name="CPUE Standard Deviation\n(Log Scale)", alpha=0.85) +
+  theme(panel.background = element_rect(fill="white", colour = "black"),
+        panel.grid.major = element_line(colour="grey93"),
+        panel.border = element_rect(colour='black', fill=NA, linewidth = 1))+
+  ggtitle("Hammerhead Shark")
+
+silkyshark_resid<-ggplot(pred.df.silkyshark) +
+  geom_tile(aes(x=Long2,y=Lat, fill=log_cpuefit)) +
+  geom_map(data = world, map = world, aes(long, lat, map_id = region)) +
+  scale_y_continuous(name="Latitude", breaks=c(seq(-50, 50, 25))) +
+  scale_x_continuous(name="Longitude", breaks=c(seq(130, 230, 25)), labels = c(130,155,180,-155,-130)) +
+  coord_cartesian(xlim=c(122,233), ylim=c(-54,49), expand=F) +
+  scale_fill_viridis(name="CPUE Standard Deviation\n(Log Scale)", alpha=0.85) +
+  theme(panel.background = element_rect(fill="white", colour = "black"),
+        panel.grid.major = element_line(colour="grey93"),
+        panel.border = element_rect(colour='black', fill=NA, linewidth = 1))+
+  ggtitle("Silky Shark")
+
+mako_resid<-ggplot(pred.df.mako) +
+  geom_tile(aes(x=Long2,y=Lat, fill=log_cpuefit)) +
+  geom_map(data = world, map = world, aes(long, lat, map_id = region)) +
+  scale_y_continuous(name="Latitude", breaks=c(seq(-50, 50, 25))) +
+  scale_x_continuous(name="Longitude", breaks=c(seq(130, 230, 25)), labels = c(130,155,180,-155,-130)) +
+  coord_cartesian(xlim=c(122,233), ylim=c(-54,49), expand=F) +
+  scale_fill_viridis(name="CPUE Standard Deviation\n(Log Scale)", alpha=0.85) +
+  theme(panel.background = element_rect(fill="white", colour = "black"),
+        panel.grid.major = element_line(colour="grey93"),
+        panel.border = element_rect(colour='black', fill=NA, linewidth = 1))+
+  ggtitle("Mako Shark")
+
+oceanicwhitetip_resid<-ggplot(pred.df.oceanicwhitetip) +
+  geom_tile(aes(x=Long2,y=Lat, fill=log_cpuefit)) +
+  geom_map(data = world, map = world, aes(long, lat, map_id = region)) +
+  scale_y_continuous(name="Latitude", breaks=c(seq(-50, 50, 25))) +
+  scale_x_continuous(name="Longitude", breaks=c(seq(130, 230, 25)), labels = c(130,155,180,-155,-130)) +
+  coord_cartesian(xlim=c(122,233), ylim=c(-54,49), expand=F) +
+  scale_fill_viridis(name="CPUE Standard Deviation\n(Log Scale)", alpha=0.85) +
+  theme(panel.background = element_rect(fill="white", colour = "black"),
+        panel.grid.major = element_line(colour="grey93"),
+        panel.border = element_rect(colour='black', fill=NA, linewidth = 1))+
+  ggtitle("Oceanic Whitetip")
+
+other_resid<-ggplot(pred.df.other) +
+  geom_tile(aes(x=Long2,y=Lat, fill=log_cpuefit)) +
+  geom_map(data = world, map = world, aes(long, lat, map_id = region)) +
+  scale_y_continuous(name="Latitude", breaks=c(seq(-50, 50, 25))) +
+  scale_x_continuous(name="Longitude", breaks=c(seq(130, 230, 25)), labels = c(130,155,180,-155,-130)) +
+  coord_cartesian(xlim=c(122,233), ylim=c(-54,49), expand=F) +
+  scale_fill_viridis(name="CPUE Standard Deviation\n(Log Scale)", alpha=0.85) +
+  theme(panel.background = element_rect(fill="white", colour = "black"),
+        panel.grid.major = element_line(colour="grey93"),
+        panel.border = element_rect(colour='black', fill=NA, linewidth = 1))+
+  ggtitle("Other Sharks")
+
+residualsCPUE <- ggarrange(blueshark_resid,silkyshark_resid,thresher_resid,mako_resid,
+                           oceanicwhitetip_resid,hammer_resid,other_resid,
+                           nrow=2, ncol=4, common.legend = T, legend='bottom')
+
+ggsave("~/Desktop/Ongoing Projects/GFW Shark Sanctuary/Figures/CPUEresid.png", residualsCPUE,
+       width=10, height=6, dpi=300, bg='white')
 

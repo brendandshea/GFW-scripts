@@ -56,9 +56,6 @@ r_bsh = 2
 
 kiribati_bsh <- kiribati_comb[,c(1:4,9,10)]
 
-bsh_cm <- runif(1000,mortality$HookMin[r_bsh],mortality$HookMax[r_bsh]) 
-bsh_prm <- rlogitnorm(1000, mortality$logit.prm[r_bsh],mortality$logit.prm.se[r_bsh]) 
-
 kiribati_bsh_catches <- matrix(nrow=n, ncol=1000)
 kiribati_bsh_DOA <- matrix(nrow=n, ncol=1000)
 kiribati_bsh_released <- matrix(nrow=n, ncol=1000)
@@ -68,9 +65,9 @@ kiribati_bsh_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     kiribati_bsh_catches[j,i] <- kiribati_hook_preds[j,i]/1000 * rlnorm(1, kiribati_comb$blueshark.logcpue[j], kiribati_comb$blueshark.logcpue.se[j])
-    kiribati_bsh_DOA[j,i] <- kiribati_bsh_catches[j,i] * bsh_cm[i] 
+    kiribati_bsh_DOA[j,i] <- kiribati_bsh_catches[j,i] * runif(1,mortality$HookMin[r_bsh],mortality$HookMax[r_bsh]) 
     kiribati_bsh_released[j,i] <- kiribati_bsh_catches[j,i] - kiribati_bsh_DOA[j,i]
-    kiribati_bsh_PRM[j,i] <- kiribati_bsh_released[j,i] * bsh_prm[i] 
+    kiribati_bsh_PRM[j,i] <- kiribati_bsh_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_bsh],mortality$logit.prm.se[r_bsh]) 
     kiribati_bsh_total[j,i] <- kiribati_bsh_DOA[j,i] + kiribati_bsh_PRM[j,i]
   }
 }
@@ -96,9 +93,6 @@ r_silky=5 #row 5 in mortality; need to change this for each species when drawing
 
 kiribati_silky <- kiribati_comb[,c(1:4,13,14)] #create dataframe
 
-silky_cm <- runif(1000,mortality$HookMin[r_silky],mortality$HookMax[r_silky]) 
-silky_prm <- rlogitnorm(1000, mortality$logit.prm[r_silky],mortality$logit.prm.se[r_silky]) 
-
 kiribati_silky_catches <- matrix(nrow=n, ncol=1000)
 kiribati_silky_DOA <- matrix(nrow=n, ncol=1000)
 kiribati_silky_released <- matrix(nrow=n, ncol=1000)
@@ -108,9 +102,9 @@ kiribati_silky_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     kiribati_silky_catches[j,i] <- kiribati_hook_preds[j,i]/1000 * rlnorm(1, kiribati_comb$silkyshark.logcpue[j], kiribati_comb$silkyshark.logcpue.se[j])
-    kiribati_silky_DOA[j,i] <- kiribati_silky_catches[j,i] * silky_cm[i] 
+    kiribati_silky_DOA[j,i] <- kiribati_silky_catches[j,i] * runif(1,mortality$HookMin[r_silky],mortality$HookMax[r_silky]) 
     kiribati_silky_released[j,i] <- kiribati_silky_catches[j,i] - kiribati_silky_DOA[j,i]
-    kiribati_silky_PRM[j,i] <- kiribati_silky_released[j,i] * silky_prm[i] 
+    kiribati_silky_PRM[j,i] <- kiribati_silky_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_silky],mortality$logit.prm.se[r_silky]) 
     kiribati_silky_total[j,i] <- kiribati_silky_DOA[j,i] + kiribati_silky_PRM[j,i]
   }
 }
@@ -137,9 +131,6 @@ r_thresher = 1
 
 kiribati_thresher <- kiribati_comb[,c(1:4,21,22)] #create dataframe
 
-thresher_cm <- runif(1000,mortality$HookMin[r_thresher],mortality$HookMax[r_thresher]) 
-thresher_prm <- rlogitnorm(1000, mortality$logit.prm[r_thresher],mortality$logit.prm.se[r_thresher]) 
-
 kiribati_thresher_catches <- matrix(nrow=n, ncol=1000)
 kiribati_thresher_DOA <- matrix(nrow=n, ncol=1000)
 kiribati_thresher_released <- matrix(nrow=n, ncol=1000)
@@ -149,9 +140,9 @@ kiribati_thresher_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     kiribati_thresher_catches[j,i] <- kiribati_hook_preds[j,i]/1000 * rlnorm(1, kiribati_comb$thresher.logcpue[j], kiribati_comb$thresher.logcpue.se[j])
-    kiribati_thresher_DOA[j,i] <- kiribati_thresher_catches[j,i] * thresher_cm[i] 
+    kiribati_thresher_DOA[j,i] <- kiribati_thresher_catches[j,i] * runif(1,mortality$HookMin[r_thresher],mortality$HookMax[r_thresher]) 
     kiribati_thresher_released[j,i] <- kiribati_thresher_catches[j,i] - kiribati_thresher_DOA[j,i]
-    kiribati_thresher_PRM[j,i] <- kiribati_thresher_released[j,i] * thresher_prm[i] 
+    kiribati_thresher_PRM[j,i] <- kiribati_thresher_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_thresher],mortality$logit.prm.se[r_thresher])
     kiribati_thresher_total[j,i] <- kiribati_thresher_DOA[j,i] + kiribati_thresher_PRM[j,i]
   }
 }
@@ -178,9 +169,6 @@ r_mako = 4
 
 kiribati_mako <- kiribati_comb[,c(1:4,17,18)] #create dataframe
 
-mako_cm <- runif(1000,mortality$HookMin[r_mako],mortality$HookMax[r_mako]) 
-mako_prm <- rlogitnorm(1000, mortality$logit.prm[r_mako],mortality$logit.prm.se[r_mako]) 
-
 kiribati_mako_catches <- matrix(nrow=n, ncol=1000)
 kiribati_mako_DOA <- matrix(nrow=n, ncol=1000)
 kiribati_mako_released <- matrix(nrow=n, ncol=1000)
@@ -190,9 +178,9 @@ kiribati_mako_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     kiribati_mako_catches[j,i] <- kiribati_hook_preds[j,i]/1000 * rlnorm(1, kiribati_comb$mako.logcpue[j], kiribati_comb$mako.logcpue.se[j])
-    kiribati_mako_DOA[j,i] <- kiribati_mako_catches[j,i] * mako_cm[i] 
+    kiribati_mako_DOA[j,i] <- kiribati_mako_catches[j,i] * runif(1,mortality$HookMin[r_mako],mortality$HookMax[r_mako]) 
     kiribati_mako_released[j,i] <- kiribati_mako_catches[j,i] - kiribati_mako_DOA[j,i]
-    kiribati_mako_PRM[j,i] <- kiribati_mako_released[j,i] * mako_prm[i] 
+    kiribati_mako_PRM[j,i] <- kiribati_mako_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_mako],mortality$logit.prm.se[r_mako]) 
     kiribati_mako_total[j,i] <- kiribati_mako_DOA[j,i] + kiribati_mako_PRM[j,i]
   }
 }
@@ -218,8 +206,6 @@ kiribati_mako$total.sd = apply(kiribati_mako_total[,1:1000], 1, sd)
 r_oceanicwhitetip = 8
 
 kiribati_oceanicwhitetip <- kiribati_comb[,c(1:4,25,26)] #create dataframe
-oceanicwhitetip_cm <- runif(1000,mortality$HookMin[r_oceanicwhitetip],mortality$HookMax[r_oceanicwhitetip]) 
-oceanicwhitetip_prm <- rlogitnorm(1000, mortality$logit.prm[r_oceanicwhitetip],mortality$logit.prm.se[r_oceanicwhitetip]) 
 
 kiribati_oceanicwhitetip_catches <- matrix(nrow=n, ncol=1000)
 kiribati_oceanicwhitetip_DOA <- matrix(nrow=n, ncol=1000)
@@ -230,9 +216,9 @@ kiribati_oceanicwhitetip_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     kiribati_oceanicwhitetip_catches[j,i] <- kiribati_hook_preds[j,i]/1000 * rlnorm(1, kiribati_comb$oceanicwhitetip.logcpue[j], kiribati_comb$oceanicwhitetip.logcpue.se[j])
-    kiribati_oceanicwhitetip_DOA[j,i] <- kiribati_oceanicwhitetip_catches[j,i] * oceanicwhitetip_cm[i] 
+    kiribati_oceanicwhitetip_DOA[j,i] <- kiribati_oceanicwhitetip_catches[j,i] * runif(1,mortality$HookMin[r_oceanicwhitetip],mortality$HookMax[r_oceanicwhitetip]) 
     kiribati_oceanicwhitetip_released[j,i] <- kiribati_oceanicwhitetip_catches[j,i] - kiribati_oceanicwhitetip_DOA[j,i]
-    kiribati_oceanicwhitetip_PRM[j,i] <- kiribati_oceanicwhitetip_released[j,i] * oceanicwhitetip_prm[i] 
+    kiribati_oceanicwhitetip_PRM[j,i] <- kiribati_oceanicwhitetip_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_oceanicwhitetip],mortality$logit.prm.se[r_oceanicwhitetip]) 
     kiribati_oceanicwhitetip_total[j,i] <- kiribati_oceanicwhitetip_DOA[j,i] + kiribati_oceanicwhitetip_PRM[j,i]
   }
 }
@@ -259,9 +245,6 @@ r_hammerhead = 9
 
 kiribati_hammerhead <- kiribati_comb[,c(1:4,29,30)] #create dataframe
 
-hammerhead_cm <- runif(1000,mortality$HookMin[r_hammerhead],mortality$HookMax[r_hammerhead]) 
-hammerhead_prm <- rlogitnorm(1000, mortality$logit.prm[r_hammerhead],mortality$logit.prm.se[r_hammerhead]) 
-
 kiribati_hammerhead_catches <- matrix(nrow=n, ncol=1000)
 kiribati_hammerhead_DOA <- matrix(nrow=n, ncol=1000)
 kiribati_hammerhead_released <- matrix(nrow=n, ncol=1000)
@@ -271,9 +254,9 @@ kiribati_hammerhead_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     kiribati_hammerhead_catches[j,i] <- kiribati_hook_preds[j,i]/1000 * rlnorm(1, kiribati_comb$hammerhead.logcpue[j], kiribati_comb$hammerhead.logcpue.se[j])
-    kiribati_hammerhead_DOA[j,i] <- kiribati_hammerhead_catches[j,i] * hammerhead_cm[i] 
+    kiribati_hammerhead_DOA[j,i] <- kiribati_hammerhead_catches[j,i] * runif(1,mortality$HookMin[r_hammerhead],mortality$HookMax[r_hammerhead]) 
     kiribati_hammerhead_released[j,i] <- kiribati_hammerhead_catches[j,i] - kiribati_hammerhead_DOA[j,i]
-    kiribati_hammerhead_PRM[j,i] <- kiribati_hammerhead_released[j,i] * hammerhead_prm[i] 
+    kiribati_hammerhead_PRM[j,i] <- kiribati_hammerhead_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_hammerhead],mortality$logit.prm.se[r_hammerhead]) 
     kiribati_hammerhead_total[j,i] <- kiribati_hammerhead_DOA[j,i] + kiribati_hammerhead_PRM[j,i]
   }
 }
@@ -300,9 +283,6 @@ r_othersharks = 10
 
 kiribati_othersharks <- kiribati_comb[,c(1:4,33,34)] #create dataframe
 
-othersharks_cm <- runif(1000,mortality$HookMin[r_othersharks],mortality$HookMax[r_othersharks]) 
-othersharks_prm <- rlogitnorm(1000, mortality$logit.prm[r_othersharks],mortality$logit.prm.se[r_othersharks]) 
-
 kiribati_othersharks_catches <- matrix(nrow=n, ncol=1000)
 kiribati_othersharks_DOA <- matrix(nrow=n, ncol=1000)
 kiribati_othersharks_released <- matrix(nrow=n, ncol=1000)
@@ -312,9 +292,9 @@ kiribati_othersharks_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     kiribati_othersharks_catches[j,i] <- kiribati_hook_preds[j,i]/1000 * rlnorm(1, kiribati_comb$othersharks.logcpue[j], kiribati_comb$othersharks.logcpue.se[j])
-    kiribati_othersharks_DOA[j,i] <- kiribati_othersharks_catches[j,i] * othersharks_cm[i] 
+    kiribati_othersharks_DOA[j,i] <- kiribati_othersharks_catches[j,i] * runif(1,mortality$HookMin[r_othersharks],mortality$HookMax[r_othersharks]) 
     kiribati_othersharks_released[j,i] <- kiribati_othersharks_catches[j,i] - kiribati_othersharks_DOA[j,i]
-    kiribati_othersharks_PRM[j,i] <- kiribati_othersharks_released[j,i] * othersharks_prm[i] 
+    kiribati_othersharks_PRM[j,i] <- kiribati_othersharks_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_othersharks],mortality$logit.prm.se[r_othersharks]) 
     kiribati_othersharks_total[j,i] <- kiribati_othersharks_DOA[j,i] + kiribati_othersharks_PRM[j,i]
   }
 }

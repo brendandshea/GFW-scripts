@@ -31,7 +31,7 @@ mortality <- mortalityrates[,c(1,2,8:10,15)]
 #### Hook data ####
 palau_proj <- read.csv("palau2019.csv")
 
-palau_proj2 <- palau_proj[,c(5,6,9,10)]
+palau_proj2 <- palau_proj[,c(5,6,10,11)]
 
 #rename
 colnames(palau_proj2)[1] <- "Long"
@@ -44,11 +44,10 @@ palau_proj2$LongMatch <- ifelse(palau_proj2$Long<130,130,palau_proj2$Long)
 master_cpue$LongMatch <- master_cpue$Long
 
 #merge
-palau_comb <- merge(palau_proj2, master_cpue, by=c("LatMatch", "LongMatch"), all=T)
+palau_comb <- left_join(palau_proj2,master_cpue[,-c(2,32)],by=c("LatMatch",'LongMatch'))
 palau_comb <- palau_comb %>% drop_na(log_hooks)
 
-palau_comb <- subset(palau_comb, select=-c(LatMatch, LongMatch, Lat.y, Long.y))
-colnames(palau_comb)[c(1:2)]<-c("Long","Lat")
+palau_comb <- palau_comb[,-c(5,6)]
 
 n <- nrow(palau_comb)
 
@@ -66,9 +65,6 @@ r_bsh = 2
 
 palau_bsh <- palau_comb[,c(1:4,9,10)]
 
-bsh_cm <- runif(1000,mortality$HookMin[r_bsh],mortality$HookMax[r_bsh]) 
-bsh_prm <- rlogitnorm(1000, mortality$logit.prm[r_bsh],mortality$logit.prm.se[r_bsh]) 
-
 palau_bsh_catches <- matrix(nrow=n, ncol=1000)
 palau_bsh_DOA <- matrix(nrow=n, ncol=1000)
 palau_bsh_released <- matrix(nrow=n, ncol=1000)
@@ -78,9 +74,9 @@ palau_bsh_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     palau_bsh_catches[j,i] <- palau_hook_preds[j,i]/1000 * rlnorm(1, palau_comb$blueshark.logcpue[j], palau_comb$blueshark.logcpue.se[j])
-    palau_bsh_DOA[j,i] <- palau_bsh_catches[j,i] * bsh_cm[i] 
+    palau_bsh_DOA[j,i] <- palau_bsh_catches[j,i] * runif(1,mortality$HookMin[r_bsh],mortality$HookMax[r_bsh])  
     palau_bsh_released[j,i] <- palau_bsh_catches[j,i] - palau_bsh_DOA[j,i]
-    palau_bsh_PRM[j,i] <- palau_bsh_released[j,i] * bsh_prm[i] 
+    palau_bsh_PRM[j,i] <- palau_bsh_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_bsh],mortality$logit.prm.se[r_bsh]) 
     palau_bsh_total[j,i] <- palau_bsh_DOA[j,i] + palau_bsh_PRM[j,i]
   }
 }
@@ -106,9 +102,6 @@ r_silky=5 #row 5 in mortality; need to change this for each species when drawing
 
 palau_silky <- palau_comb[,c(1:4,13,14)] #create dataframe
 
-silky_cm <- runif(1000,mortality$HookMin[r_silky],mortality$HookMax[r_silky]) 
-silky_prm <- rlogitnorm(1000, mortality$logit.prm[r_silky],mortality$logit.prm.se[r_silky]) 
-
 palau_silky_catches <- matrix(nrow=n, ncol=1000)
 palau_silky_DOA <- matrix(nrow=n, ncol=1000)
 palau_silky_released <- matrix(nrow=n, ncol=1000)
@@ -118,9 +111,9 @@ palau_silky_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     palau_silky_catches[j,i] <- palau_hook_preds[j,i]/1000 * rlnorm(1, palau_comb$silkyshark.logcpue[j], palau_comb$silkyshark.logcpue.se[j])
-    palau_silky_DOA[j,i] <- palau_silky_catches[j,i] * silky_cm[i] 
+    palau_silky_DOA[j,i] <- palau_silky_catches[j,i] * runif(1,mortality$HookMin[r_silky],mortality$HookMax[r_silky]) 
     palau_silky_released[j,i] <- palau_silky_catches[j,i] - palau_silky_DOA[j,i]
-    palau_silky_PRM[j,i] <- palau_silky_released[j,i] * silky_prm[i] 
+    palau_silky_PRM[j,i] <- palau_silky_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_silky],mortality$logit.prm.se[r_silky])
     palau_silky_total[j,i] <- palau_silky_DOA[j,i] + palau_silky_PRM[j,i]
   }
 }
@@ -147,9 +140,6 @@ r_thresher = 1
 
 palau_thresher <- palau_comb[,c(1:4,21,22)] #create dataframe
 
-thresher_cm <- runif(1000,mortality$HookMin[r_thresher],mortality$HookMax[r_thresher]) 
-thresher_prm <- rlogitnorm(1000, mortality$logit.prm[r_thresher],mortality$logit.prm.se[r_thresher]) 
-
 palau_thresher_catches <- matrix(nrow=n, ncol=1000)
 palau_thresher_DOA <- matrix(nrow=n, ncol=1000)
 palau_thresher_released <- matrix(nrow=n, ncol=1000)
@@ -159,9 +149,9 @@ palau_thresher_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     palau_thresher_catches[j,i] <- palau_hook_preds[j,i]/1000 * rlnorm(1, palau_comb$thresher.logcpue[j], palau_comb$thresher.logcpue.se[j])
-    palau_thresher_DOA[j,i] <- palau_thresher_catches[j,i] * thresher_cm[i] 
+    palau_thresher_DOA[j,i] <- palau_thresher_catches[j,i] * runif(1,mortality$HookMin[r_thresher],mortality$HookMax[r_thresher]) 
     palau_thresher_released[j,i] <- palau_thresher_catches[j,i] - palau_thresher_DOA[j,i]
-    palau_thresher_PRM[j,i] <- palau_thresher_released[j,i] * thresher_prm[i] 
+    palau_thresher_PRM[j,i] <- palau_thresher_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_thresher],mortality$logit.prm.se[r_thresher]) 
     palau_thresher_total[j,i] <- palau_thresher_DOA[j,i] + palau_thresher_PRM[j,i]
   }
 }
@@ -188,9 +178,6 @@ r_mako = 4
 
 palau_mako <- palau_comb[,c(1:4,17,18)] #create dataframe
 
-mako_cm <- runif(1000,mortality$HookMin[r_mako],mortality$HookMax[r_mako]) 
-mako_prm <- rlogitnorm(1000, mortality$logit.prm[r_mako],mortality$logit.prm.se[r_mako]) 
-
 palau_mako_catches <- matrix(nrow=n, ncol=1000)
 palau_mako_DOA <- matrix(nrow=n, ncol=1000)
 palau_mako_released <- matrix(nrow=n, ncol=1000)
@@ -200,9 +187,9 @@ palau_mako_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     palau_mako_catches[j,i] <- palau_hook_preds[j,i]/1000 * rlnorm(1, palau_comb$mako.logcpue[j], palau_comb$mako.logcpue.se[j])
-    palau_mako_DOA[j,i] <- palau_mako_catches[j,i] * mako_cm[i] 
+    palau_mako_DOA[j,i] <- palau_mako_catches[j,i] * runif(1,mortality$HookMin[r_mako],mortality$HookMax[r_mako]) 
     palau_mako_released[j,i] <- palau_mako_catches[j,i] - palau_mako_DOA[j,i]
-    palau_mako_PRM[j,i] <- palau_mako_released[j,i] * mako_prm[i] 
+    palau_mako_PRM[j,i] <- palau_mako_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_mako],mortality$logit.prm.se[r_mako]) 
     palau_mako_total[j,i] <- palau_mako_DOA[j,i] + palau_mako_PRM[j,i]
   }
 }
@@ -228,8 +215,6 @@ palau_mako$total.sd = apply(palau_mako_total[,1:1000], 1, sd)
 r_oceanicwhitetip = 8
 
 palau_oceanicwhitetip <- palau_comb[,c(1:4,25,26)] #create dataframe
-oceanicwhitetip_cm <- runif(1000,mortality$HookMin[r_oceanicwhitetip],mortality$HookMax[r_oceanicwhitetip]) 
-oceanicwhitetip_prm <- rlogitnorm(1000, mortality$logit.prm[r_oceanicwhitetip],mortality$logit.prm.se[r_oceanicwhitetip]) 
 
 palau_oceanicwhitetip_catches <- matrix(nrow=n, ncol=1000)
 palau_oceanicwhitetip_DOA <- matrix(nrow=n, ncol=1000)
@@ -240,9 +225,9 @@ palau_oceanicwhitetip_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     palau_oceanicwhitetip_catches[j,i] <- palau_hook_preds[j,i]/1000 * rlnorm(1, palau_comb$oceanicwhitetip.logcpue[j], palau_comb$oceanicwhitetip.logcpue.se[j])
-    palau_oceanicwhitetip_DOA[j,i] <- palau_oceanicwhitetip_catches[j,i] * oceanicwhitetip_cm[i] 
+    palau_oceanicwhitetip_DOA[j,i] <- palau_oceanicwhitetip_catches[j,i] * runif(1,mortality$HookMin[r_oceanicwhitetip],mortality$HookMax[r_oceanicwhitetip]) 
     palau_oceanicwhitetip_released[j,i] <- palau_oceanicwhitetip_catches[j,i] - palau_oceanicwhitetip_DOA[j,i]
-    palau_oceanicwhitetip_PRM[j,i] <- palau_oceanicwhitetip_released[j,i] * oceanicwhitetip_prm[i] 
+    palau_oceanicwhitetip_PRM[j,i] <- palau_oceanicwhitetip_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_oceanicwhitetip],mortality$logit.prm.se[r_oceanicwhitetip]) 
     palau_oceanicwhitetip_total[j,i] <- palau_oceanicwhitetip_DOA[j,i] + palau_oceanicwhitetip_PRM[j,i]
   }
 }
@@ -269,9 +254,6 @@ r_hammerhead = 9
 
 palau_hammerhead <- palau_comb[,c(1:4,29,30)] #create dataframe
 
-hammerhead_cm <- runif(1000,mortality$HookMin[r_hammerhead],mortality$HookMax[r_hammerhead]) 
-hammerhead_prm <- rlogitnorm(1000, mortality$logit.prm[r_hammerhead],mortality$logit.prm.se[r_hammerhead]) 
-
 palau_hammerhead_catches <- matrix(nrow=n, ncol=1000)
 palau_hammerhead_DOA <- matrix(nrow=n, ncol=1000)
 palau_hammerhead_released <- matrix(nrow=n, ncol=1000)
@@ -281,9 +263,9 @@ palau_hammerhead_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     palau_hammerhead_catches[j,i] <- palau_hook_preds[j,i]/1000 * rlnorm(1, palau_comb$hammerhead.logcpue[j], palau_comb$hammerhead.logcpue.se[j])
-    palau_hammerhead_DOA[j,i] <- palau_hammerhead_catches[j,i] * hammerhead_cm[i] 
+    palau_hammerhead_DOA[j,i] <- palau_hammerhead_catches[j,i] * runif(1,mortality$HookMin[r_hammerhead],mortality$HookMax[r_hammerhead])  
     palau_hammerhead_released[j,i] <- palau_hammerhead_catches[j,i] - palau_hammerhead_DOA[j,i]
-    palau_hammerhead_PRM[j,i] <- palau_hammerhead_released[j,i] * hammerhead_prm[i] 
+    palau_hammerhead_PRM[j,i] <- palau_hammerhead_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_hammerhead],mortality$logit.prm.se[r_hammerhead]) 
     palau_hammerhead_total[j,i] <- palau_hammerhead_DOA[j,i] + palau_hammerhead_PRM[j,i]
   }
 }
@@ -310,9 +292,6 @@ r_othersharks = 10
 
 palau_othersharks <- palau_comb[,c(1:4,33,34)] #create dataframe
 
-othersharks_cm <- runif(1000,mortality$HookMin[r_othersharks],mortality$HookMax[r_othersharks]) 
-othersharks_prm <- rlogitnorm(1000, mortality$logit.prm[r_othersharks],mortality$logit.prm.se[r_othersharks]) 
-
 palau_othersharks_catches <- matrix(nrow=n, ncol=1000)
 palau_othersharks_DOA <- matrix(nrow=n, ncol=1000)
 palau_othersharks_released <- matrix(nrow=n, ncol=1000)
@@ -322,9 +301,9 @@ palau_othersharks_total <- matrix(nrow=n, ncol=1000)
 for (j in 1:n) {
   for (i in 1:1000) {
     palau_othersharks_catches[j,i] <- palau_hook_preds[j,i]/1000 * rlnorm(1, palau_comb$othersharks.logcpue[j], palau_comb$othersharks.logcpue.se[j])
-    palau_othersharks_DOA[j,i] <- palau_othersharks_catches[j,i] * othersharks_cm[i] 
+    palau_othersharks_DOA[j,i] <- palau_othersharks_catches[j,i] * runif(1,mortality$HookMin[r_othersharks],mortality$HookMax[r_othersharks]) 
     palau_othersharks_released[j,i] <- palau_othersharks_catches[j,i] - palau_othersharks_DOA[j,i]
-    palau_othersharks_PRM[j,i] <- palau_othersharks_released[j,i] * othersharks_prm[i] 
+    palau_othersharks_PRM[j,i] <- palau_othersharks_released[j,i] * rlogitnorm(1, mortality$logit.prm[r_othersharks],mortality$logit.prm.se[r_othersharks]) 
     palau_othersharks_total[j,i] <- palau_othersharks_DOA[j,i] + palau_othersharks_PRM[j,i]
   }
 }
